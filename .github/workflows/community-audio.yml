@@ -1,19 +1,28 @@
 name: Community audio jobs
 
-# Queues every Mandarin line as a community generation job on the platform (dialogue#10,
+# Requests community TTS for the Mandarin lines that need it (dialogue#10, #11,
 # freeappstore-online/platform#727): contributors' devices speak them with Kokoro, the platform
 # verifies each upload, and the app plays the accepted ones in place of the bundled MP3s.
-# Run by hand; re-running re-sends the same jobs, which changes nothing. Authenticates with this
+# Runs when the dialogue text changes on main (requesting only lines with no job yet) and by hand.
+# Authenticates with this
 # run's GitHub OIDC token, which the platform accepts only from main of the app's own repository.
 # The first real run creates the two job sets (one per speaker), commits their ids to
 # web/src/dialogue/community-sets.json, then redeploys so the app reads them.
-# dry_run lists the jobs and calls nothing. Details: scripts/community-audio.py.
+# dry_run (manual runs only) reports what would be requested and creates nothing. Details: scripts/community-audio.py.
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - web/src/dialogue/scenarios/**
+      - web/src/dialogue/repairs.json
+      - web/src/dialogue/phrases.json
+      - scripts/audio_lines.py
+      - scripts/community-audio.py
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Only list the jobs; create and send nothing
+        description: Only report what would be requested; create and request nothing
         type: boolean
         default: true
 
