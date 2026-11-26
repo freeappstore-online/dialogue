@@ -3,12 +3,13 @@ import { phrases, scenarioById, scenarios } from '../dialogue/catalog';
 import { buildEntries, likely, matchTranscripts, search, type Entry } from '../dialogue/finder';
 import { pathTo } from '../dialogue/model';
 import { href } from '../route';
-import { Icon, LineBlock, ListenButton, PlayButton, Sheet, TabBar } from './common';
+import { Icon, LineBlock, ListenButton, PlayButton, SettingsButton, Sheet, TabBar } from './common';
+import { useDisplay, Zh } from './prefs';
 
 function EntryRow({ entry, label, onOpen }: { entry: Entry; label?: string; onOpen: (e: Entry) => void }) {
   return <li><button type="button" className="list-row" onClick={() => onOpen(entry)}>
     <span className="list-main">
-      <strong lang="zh-CN" className="row-zh">{entry.zh}</strong>
+      <strong className="row-zh"><Zh line={entry} /></strong>
       <span>{entry.en}</span>
       {label && <span className={`tag ${label === 'Exact text match' ? 'ok' : ''}`}>{label}</span>}
     </span>
@@ -26,11 +27,12 @@ export function Finder({ scenarioId, nodeId }: { scenarioId?: string; nodeId?: s
   const matches = heard ? matchTranscripts(entries, heard, ctx) : null;
   const results = query.trim() ? search(entries, query, ctx).slice(0, 40) : null;
   const source = open?.source && scenarioById(open.source.scenarioId);
+  const [{ playThem }] = useDisplay();
 
   return <div className="app">
     <div className="app-body">
       <header className="screen-head">
-        <h1>Phrases</h1>
+        <div className="screen-title"><h1>Phrases</h1><SettingsButton /></div>
         <p>Find what someone said and see replies you can use</p>
       </header>
       {scenario && nodeId && <a className="context-chip" href={href.play(scenario.id, pathTo(scenario, nodeId))}><Icon name="back" /> Back to {scenario.icon} {scenario.title}</a>}
@@ -73,13 +75,12 @@ export function Finder({ scenarioId, nodeId }: { scenarioId?: string; nodeId?: s
     <Sheet open={!!open} onClose={() => setOpen(null)} title={open?.source ? open.source.title : 'Common phrase'}>
       {open && <>
         <div className="detail-line">
-          <p className="detail-zh" lang="zh-CN">{open.zh}</p>
-          <p className="pinyin">{open.pinyin}</p>
+          <p className="detail-text"><Zh line={open} className="detail-zh" /></p>
           <p className="meaning">{open.en}</p>
-          <PlayButton voice="them" zh={open.zh} label={`Play: ${open.en}`} />
+          {playThem && <PlayButton voice="them" zh={open.zh} label={`Play: ${open.en}`} />}
         </div>
         <h3 className="section-label">Replies you can use</h3>
-        {open.replies.length ? open.replies.map(r => <LineBlock key={r.zh} line={r} voice="you" />) : <p className="hint-text">This line ends the conversation.</p>}
+        {open.replies.length ? open.replies.map(r => <LineBlock key={r.zh} line={r} voice="you" meaning />) : <p className="hint-text">This line ends the conversation.</p>}
         {source && open.source && <div className="sheet-actions"><a className="btn primary grow" href={href.play(source.id, pathTo(source, open.source.nodeId))}>Practise from here</a></div>}
       </>}
     </Sheet>

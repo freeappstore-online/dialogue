@@ -1,12 +1,12 @@
 import { categories } from '../dialogue/catalog';
 import { href } from '../route';
-import { AudioChip, Icon, TabBar } from './common';
+import { AudioChip, Icon, SettingsButton, TabBar } from './common';
 
 export function Home() {
   return <div className="app">
     <div className="app-body">
       <header className="screen-head">
-        <h1>Practice</h1>
+        <div className="screen-title"><h1>Practice</h1><SettingsButton /></div>
         <p>Mandarin conversations · hear it, pick a reply, say it aloud</p>
       </header>
       <a className="search-pill" href={href.find()}><Icon name="search" /><span>Heard something? Find a phrase</span></a>

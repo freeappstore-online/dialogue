@@ -5,6 +5,7 @@ import type { Line } from '../dialogue/model';
 import { ListenError, listenMessage, listenOnce, recognitionCtor } from '../dialogue/speech';
 import { pwa } from '../fas-capabilities/pwa';
 import { href } from '../route';
+import { DisplaySettings, useDisplay, Zh } from './prefs';
 
 /** A device-local preference (localStorage, JSON encoded). */
 export function usePref<T>(key: string, initial: T): [T, (value: T) => void] {
@@ -29,6 +30,7 @@ const paths: Record<string, ReactNode> = {
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5h.01" /></>,
   close: <path d="M6 6l12 12M18 6L6 18" />,
   script: <path d="M7 4h10v16H7zM10 8h4M10 12h4M10 16h2" />,
+  settings: <><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></>,
 };
 
 export function Icon({ name }: { name: keyof typeof paths }) {
@@ -50,12 +52,23 @@ export function PlayButton({ voice, zh, rate = 1, label = 'Play audio' }: { voic
     onClick={() => { setFailed(false); playLine(voice, zh, rate).catch(() => setFailed(true)); }}><Icon name="play" /></button>;
 }
 
-export function LineBlock({ line, voice, pinyin = true, meaning = true }: { line: Line; voice: Voice; pinyin?: boolean; meaning?: boolean }) {
+/** A Mandarin line with pinyin, meaning and a play button, as the display settings say. */
+export function LineBlock({ line, voice, meaning }: { line: Line; voice: Voice; meaning?: boolean }) {
+  const [d] = useDisplay();
+  const play = voice === 'them' ? d.playThem : d.playYou;
   return <div className="line">
-    <div className="line-zh"><span lang="zh-CN">{line.zh}</span><PlayButton voice={voice} zh={line.zh} label={`Play: ${line.en}`} /></div>
-    {pinyin && <p className="pinyin">{line.pinyin}</p>}
-    {meaning && <p className="meaning">{line.en}</p>}
+    <div className="line-zh"><span className="line-text"><Zh line={line} /></span>{play && <PlayButton voice={voice} zh={line.zh} label={`Play: ${line.en}`} />}</div>
+    {(meaning ?? d.meaning) && <p className="meaning">{line.en}</p>}
   </div>;
+}
+
+/** Opens the display settings from any screen. */
+export function SettingsButton() {
+  const [open, setOpen] = useState(false);
+  return <>
+    <IconButton icon="settings" label="Display settings" onClick={() => setOpen(true)} />
+    <Sheet open={open} onClose={() => setOpen(false)} title="Display settings"><DisplaySettings /></Sheet>
+  </>;
 }
 
 export const AUDIO_NOTE = 'Lines are voiced by the Kokoro text-to-speech engine, not recorded by native speakers. Tones and pacing have not been checked, so treat the audio as a guide rather than a pronunciation model. Everything works without sound or a microphone.';

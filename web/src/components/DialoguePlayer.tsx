@@ -5,16 +5,15 @@ import { categoryOf, repairs } from '../dialogue/catalog';
 import { matchTranscripts } from '../dialogue/finder';
 import { applyRepair, type Line, type Repair, type Scenario } from '../dialogue/model';
 import { href, navigate } from '../route';
-import { AUDIO_NOTE, Icon, IconButton, LineBlock, ListenButton, PlayButton, Sheet, TopBar, usePref } from './common';
+import { AUDIO_NOTE, Icon, IconButton, LineBlock, ListenButton, PlayButton, Sheet, TopBar } from './common';
+import { DisplaySettings, useDisplay, Zh } from './prefs';
 
 type Bubble = { key: string; from: 'them' | 'you'; line: Line; speaker?: string; current?: boolean };
 const isBlocked = (e: unknown) => e instanceof DOMException && e.name === 'NotAllowedError';
 
 export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario; path: string[]; nodeId: string }) {
   const node = scenario.nodes[nodeId];
-  const [pinyin, setPinyin] = usePref('dialogue:pinyin', false);
-  const [meaning, setMeaning] = usePref('dialogue:meaning', true);
-  const [delay, setDelay] = usePref('dialogue:delay', 0);
+  const [{ meaning, delay, autoplay, playThem, playYou }] = useDisplay();
   const [ready, setReady] = useState(false);
   const [warning, setWarning] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
@@ -31,10 +30,12 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
     setReady(false); setWarning(''); setSelected(null); setHint(false); setRemaining(0); setRepairLog([]); setFallback(''); setRevealed(false); setHeard(null);
     let active = true;
     run.current++;
+    if (!autoplay) { setReady(true); return; }
     playLine('them', node.zh)
       .catch(e => { if (active) setWarning(isBlocked(e) ? 'Tap ▶ to hear the line.' : 'Audio could not play. Read the line and reply.'); })
       .finally(() => { if (active) setReady(true); });
     return () => { active = false; stopAudio(); };
+    // autoplay is read at the start of a turn only: changing the setting must not replay the line.
   }, [scenario.id, nodeId, node.zh]);
 
   useEffect(() => {
@@ -79,7 +80,7 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
 
   return <div className="app">
     <TopBar back={href.home} backLabel="All conversations" title={scenario.title} subtitle={`${scenario.icon} ${categoryOf(scenario).title}`}
-      action={<IconButton icon="more" label="Conversation settings" onClick={() => setSheet('settings')} />} />
+      action={<IconButton icon="more" label="Settings" onClick={() => setSheet('settings')} />} />
 
     <div className="app-body thread" aria-live="polite">
       {thread.map((b, i) => b.from === 'them'
@@ -87,20 +88,22 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
             <span className="avatar" aria-hidden="true">{b.speaker?.[0]}</span>
             <div className="bubble them">
               {thread[i - 1]?.from !== 'them' && <span className="bubble-speaker">{b.speaker}</span>}
-              <p className="bubble-zh" lang="zh-CN">{b.line.zh}</p>
-              {pinyin && <p className="pinyin">{b.line.pinyin}</p>}
+              <p className="bubble-text"><Zh line={b.line} className="bubble-zh" /></p>
               {(meaning || (b.current && revealed)) && <p className="meaning">{b.line.en}</p>}
-              <div className="bubble-actions">
-                <PlayButton voice="them" zh={b.line.zh} label="Play" />
+              {playThem && <div className="bubble-actions">
+                <PlayButton voice="them" zh={b.line.zh} label={`Play: ${b.line.en}`} />
                 {b.current && <IconButton icon="slow" label="Play slower" className="small" onClick={() => { void playLine('them', node.zh, 0.7).catch(() => {}); }} />}
-              </div>
+              </div>}
             </div>
           </div>
         : <div key={b.key} className="bubble-row you">
             <div className="bubble you">
-              <p className="bubble-zh" lang="zh-CN">{b.line.zh}</p>
-              {pinyin && <p className="pinyin">{b.line.pinyin}</p>}
-              <p className="meaning">{b.line.en}</p>
+              <p className="bubble-text"><Zh line={b.line} className="bubble-zh" /></p>
+              {meaning && <p className="meaning">{b.line.en}</p>}
+              {playYou && <div className="bubble-actions">
+                <PlayButton voice="you" zh={b.line.zh} label={`Play my reply: ${b.line.en}`} />
+                <IconButton icon="slow" label="Play my reply slower" className="small" onClick={() => { void playLine('you', b.line.zh, 0.7).catch(() => {}); }} />
+              </div>}
             </div>
           </div>)}
       {warning && <p className="system-note" role="status">{warning}</p>}
@@ -123,7 +126,7 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
           <p className="intent">{choice.en}</p>
           {remaining > 0
             ? <p className="hint-text" role="timer">Say it aloud first — hint in {remaining}s</p>
-            : hint ? <LineBlock line={choice} voice="you" pinyin={pinyin} meaning={false} />
+            : hint ? <LineBlock line={choice} voice="you" meaning={false} />
             : <button type="button" className="text-btn" onClick={() => setHint(true)}>Show the Mandarin</button>}
           {heard && <p className="hint-text" role="status">Heard “<span lang="zh-CN">{heard[0]}</span>” — {check?.exact ? 'exact text match with the hint.' : check ? 'close to the hint text.' : 'different from the hint; fine if you said it another way.'} Words only, not tones.</p>}
           <div className="composer-row">
@@ -145,17 +148,14 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
     <Sheet open={sheet === 'help'} onClose={() => setSheet(null)} title="Need help?">
       <p className="hint-text">Ask them to repeat, slow down or rephrase. You stay on this turn.</p>
       <div className="list">{repairs.map(r => <button type="button" key={r.id} className="list-row" onClick={() => void askRepair(r)}>
-        <span className="list-main"><strong>{r.en}</strong><span lang="zh-CN">{r.zh}</span></span><Icon name="chevron" />
+        <span className="list-main"><strong>{r.en}</strong><span className="row-zh small"><Zh line={r} /></span></span><Icon name="chevron" />
       </button>)}</div>
       <a className="list-row" href={href.find(scenario.id, nodeId)}><span className="list-main"><strong>Heard something else?</strong><span>Find the phrase and ready replies</span></span><Icon name="search" /></a>
     </Sheet>
 
-    <Sheet open={sheet === 'settings'} onClose={() => setSheet(null)} title="Conversation settings">
-      <div className="list">
-        <label className="list-row"><span className="list-main"><strong>Show pinyin</strong></span><input type="checkbox" className="switch" checked={pinyin} onChange={e => setPinyin(e.target.checked)} /></label>
-        <label className="list-row"><span className="list-main"><strong>Show English meaning</strong></span><input type="checkbox" className="switch" checked={meaning} onChange={e => setMeaning(e.target.checked)} /></label>
-        <label className="list-row"><span className="list-main"><strong>Thinking time</strong><span>Before the reply hint appears</span></span>
-          <select value={delay} onChange={e => setDelay(Number(e.target.value))}><option value={0}>Off</option><option value={5}>5 s</option><option value={10}>10 s</option><option value={20}>20 s</option></select></label>
+    <Sheet open={sheet === 'settings'} onClose={() => setSheet(null)} title="Settings">
+      <DisplaySettings />
+      <div className="list spaced">
         <a className="list-row" href={href.script(scenario.id)}><span className="list-main"><strong>Full script</strong><span>Every line and where each reply leads</span></span><Icon name="script" /></a>
         {path.length > 0 && <a className="list-row" href={href.play(scenario.id)}><span className="list-main"><strong>Restart conversation</strong></span><Icon name="chevron" /></a>}
       </div>

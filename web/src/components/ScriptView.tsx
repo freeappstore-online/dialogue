@@ -2,7 +2,7 @@ import { StatusBar } from '@freeappstore/sdk/ui';
 import { categoryOf } from '../dialogue/catalog';
 import { pathTo, type Scenario } from '../dialogue/model';
 import { href } from '../route';
-import { LineBlock, TopBar } from './common';
+import { LineBlock, SettingsButton, TopBar } from './common';
 
 /** Nodes in breadth-first order from the start, so the script reads top to bottom. */
 export function scriptOrder(s: Scenario): string[] {
@@ -21,17 +21,17 @@ export function ScriptView({ scenario }: { scenario: Scenario }) {
   const order = scriptOrder(scenario);
   const num = Object.fromEntries(order.map((id, i) => [id, i + 1]));
   return <div className="app">
-    <TopBar back={href.play(scenario.id)} backLabel="Back to the conversation" title="Full script" subtitle={`${scenario.icon} ${scenario.title} · ${categoryOf(scenario).title}`} />
+    <TopBar back={href.play(scenario.id)} backLabel="Back to the conversation" title="Full script" subtitle={`${scenario.icon} ${scenario.title} · ${categoryOf(scenario).title}`} action={<SettingsButton />} />
     <div className="app-body">
       <ol className="script">{order.map(id => {
         const n = scenario.nodes[id];
         return <li key={id} id={`node-${id}`} tabIndex={-1} className="script-node">
           <div className="script-head"><span className="step">{num[id]}</span><span className="bubble-speaker">{n.speaker}</span><a className="text-btn" href={href.play(scenario.id, pathTo(scenario, id))}>Practise from here</a></div>
-          <LineBlock line={n} voice="them" />
-          {!!n.variants?.length && <div className="also"><h3 className="section-label">Also heard as</h3>{n.variants.map(v => <LineBlock key={v.zh} line={v} voice="them" />)}</div>}
-          {n.rephrase && <div className="also"><h3 className="section-label">Said another way</h3><LineBlock line={n.rephrase} voice="them" /></div>}
+          <LineBlock line={n} voice="them" meaning />
+          {!!n.variants?.length && <div className="also"><h3 className="section-label">Also heard as</h3>{n.variants.map(v => <LineBlock key={v.zh} line={v} voice="them" meaning />)}</div>}
+          {n.rephrase && <div className="also"><h3 className="section-label">Said another way</h3><LineBlock line={n.rephrase} voice="them" meaning /></div>}
           {n.choices.length
-            ? <div className="also"><h3 className="section-label">Replies</h3><ul className="script-replies">{n.choices.map(c => <li key={c.id}><LineBlock line={c} voice="you" /><button type="button" className="text-btn" onClick={() => jump(c.next)}>Leads to {num[c.next]}</button></li>)}</ul></div>
+            ? <div className="also"><h3 className="section-label">Replies</h3><ul className="script-replies">{n.choices.map(c => <li key={c.id}><LineBlock line={c} voice="you" meaning /><button type="button" className="text-btn" onClick={() => jump(c.next)}>Leads to {num[c.next]}</button></li>)}</ul></div>
             : <p className="outcome">🎉 {n.outcome}</p>}
         </li>;
       })}</ol>
