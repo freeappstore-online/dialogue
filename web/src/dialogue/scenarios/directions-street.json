@@ -2,6 +2,7 @@
   "id": "directions-street",
   "version": "1.0.0",
   "category": "directions",
+  "icon": "🚶",
   "title": "Finding the station on foot",
   "summary": "Ask a passer-by the way, choose walking or transport, clear up left versus right and confirm a landmark.",
   "start": "help",

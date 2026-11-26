@@ -1,7 +1,8 @@
+import { StatusBar } from '@freeappstore/sdk/ui';
 import { categoryOf } from '../dialogue/catalog';
-import type { Scenario } from '../dialogue/model';
+import { pathTo, type Scenario } from '../dialogue/model';
 import { href } from '../route';
-import { LineBlock } from './common';
+import { LineBlock, TopBar } from './common';
 
 /** Nodes in breadth-first order from the start, so the script reads top to bottom. */
 export function scriptOrder(s: Scenario): string[] {
@@ -19,21 +20,22 @@ const jump = (id: string) => {
 export function ScriptView({ scenario }: { scenario: Scenario }) {
   const order = scriptOrder(scenario);
   const num = Object.fromEntries(order.map((id, i) => [id, i + 1]));
-  return <div className="dialogue">
-    <a className="back" href={href.home}>← All conversations</a>
-    <header className="intro"><span className="eyebrow">SCRIPT · {categoryOf(scenario).title.toUpperCase()}</span><h1>{scenario.title}</h1><p>Every line with pinyin and meaning, and where each reply leads. Use it as a quick reference: find what was just said and read the prepared replies.</p></header>
-    <div className="row"><a className="primary inline" href={href.play(scenario.id)}>Practise from the start</a></div>
-    <ol className="script">{order.map(id => {
-      const n = scenario.nodes[id];
-      return <li key={id} id={`node-${id}`} tabIndex={-1} className="script-node">
-        <div className="card-top"><span className="speaker">#{num[id]} · {n.speaker.toUpperCase()}</span><a className="small" href={href.play(scenario.id, id)}>Practise from here</a></div>
-        <LineBlock line={n} voice="them" />
-        {!!n.variants?.length && <div className="also"><h3>Also heard as</h3>{n.variants.map(v => <LineBlock key={v.zh} line={v} voice="them" />)}</div>}
-        {n.rephrase && <div className="also"><h3>Said another way (when you ask)</h3><LineBlock line={n.rephrase} voice="them" /></div>}
-        {n.choices.length
-          ? <div className="also"><h3>Replies</h3><ul className="script-replies">{n.choices.map(c => <li key={c.id}><LineBlock line={c} voice="you" /><button type="button" className="link" onClick={() => jump(c.next)}>leads to #{num[c.next]}</button></li>)}</ul></div>
-          : <p className="outcome"><strong>Ending:</strong> {n.outcome}</p>}
-      </li>;
-    })}</ol>
+  return <div className="app">
+    <TopBar back={href.play(scenario.id)} backLabel="Back to the conversation" title="Full script" subtitle={`${scenario.icon} ${scenario.title} · ${categoryOf(scenario).title}`} />
+    <div className="app-body">
+      <ol className="script">{order.map(id => {
+        const n = scenario.nodes[id];
+        return <li key={id} id={`node-${id}`} tabIndex={-1} className="script-node">
+          <div className="script-head"><span className="step">{num[id]}</span><span className="bubble-speaker">{n.speaker}</span><a className="text-btn" href={href.play(scenario.id, pathTo(scenario, id))}>Practise from here</a></div>
+          <LineBlock line={n} voice="them" />
+          {!!n.variants?.length && <div className="also"><h3 className="section-label">Also heard as</h3>{n.variants.map(v => <LineBlock key={v.zh} line={v} voice="them" />)}</div>}
+          {n.rephrase && <div className="also"><h3 className="section-label">Said another way</h3><LineBlock line={n.rephrase} voice="them" /></div>}
+          {n.choices.length
+            ? <div className="also"><h3 className="section-label">Replies</h3><ul className="script-replies">{n.choices.map(c => <li key={c.id}><LineBlock line={c} voice="you" /><button type="button" className="text-btn" onClick={() => jump(c.next)}>Leads to {num[c.next]}</button></li>)}</ul></div>
+            : <p className="outcome">🎉 {n.outcome}</p>}
+        </li>;
+      })}</ol>
+    </div>
+    <div className="dock"><StatusBar /></div>
   </div>;
 }

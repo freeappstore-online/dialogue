@@ -34,24 +34,24 @@ export function likely(entries: Entry[], ctx: Context): Entry[] {
   return [...here, ...entries.filter(e => !e.source)];
 }
 
-/** Typed search by English meaning, Mandarin characters or pinyin (tones optional). */
+/**
+ * Typed search by English meaning, Mandarin characters or pinyin (tones optional).
+ * Lines whose prepared replies match rank below direct matches, so searching
+ * for something you want to say finds the moment to say it.
+ */
 export function search(entries: Entry[], query: string, ctx: Context): Entry[] {
   const zh = normalizeZh(query);
   const py = normalizePinyin(query);
   const en = query.trim().toLowerCase();
   if (!zh && !py) return [];
   const words = en.split(/\s+/).filter(Boolean);
-  const scored = entries.map(e => {
-    let score = 0;
-    const ez = normalizeZh(e.zh);
-    const ep = normalizePinyin(e.pinyin);
-    const ee = e.en.toLowerCase();
-    if (zh && ez.includes(zh)) score = ez === zh ? 3 : 2;
-    if (py && ep.includes(py)) score = Math.max(score, ep === py ? 3 : 2);
-    if (ee.includes(en)) score = Math.max(score, 2);
-    else if (words.every(w => ee.includes(w))) score = Math.max(score, 1);
-    return { e, score };
-  }).filter(r => r.score > 0);
+  const hit = (l: Line, exactScore: number, partScore: number) => {
+    const z = normalizeZh(l.zh), p = normalizePinyin(l.pinyin), t = l.en.toLowerCase();
+    if ((zh && z === zh) || (py && p === py)) return exactScore;
+    if ((zh && z.includes(zh)) || (py && p.includes(py)) || t.includes(en)) return partScore;
+    return words.every(w => t.includes(w)) ? partScore / 2 : 0;
+  };
+  const scored = entries.map(e => ({ e, score: Math.max(hit(e, 4, 2), ...e.replies.map(r => hit(r, 1, 0.75))) })).filter(r => r.score > 0);
   scored.sort((a, b) => b.score - a.score || boost(b.e, ctx) - boost(a.e, ctx));
   return scored.map(r => r.e);
 }

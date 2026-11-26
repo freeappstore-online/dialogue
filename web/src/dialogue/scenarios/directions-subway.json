@@ -2,6 +2,7 @@
   "id": "directions-subway",
   "version": "1.0.0",
   "category": "directions",
+  "icon": "🚇",
   "title": "In the subway: lines, transfers and exits",
   "summary": "Ask station staff which line to take, where to change, and which exit to use.",
   "start": "where",

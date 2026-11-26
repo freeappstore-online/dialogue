@@ -2,6 +2,7 @@
   "id": "appointment-book",
   "version": "1.0.0",
   "category": "appointments",
+  "icon": "📅",
   "title": "Booking a clinic appointment",
   "summary": "Pick a day and time, handle a fully booked slot, give your details and confirm.",
   "start": "hello",

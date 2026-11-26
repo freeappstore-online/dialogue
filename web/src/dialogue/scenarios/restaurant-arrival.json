@@ -2,6 +2,7 @@
   "id": "restaurant-arrival",
   "version": "2.0.0",
   "category": "restaurant",
+  "icon": "🪑",
   "title": "Arriving and getting a table",
   "summary": "Say how many people, find a reservation, choose a seat or wait when it is full.",
   "start": "greet",

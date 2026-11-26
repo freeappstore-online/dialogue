@@ -2,7 +2,8 @@ import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { audioPath } from './audio';
 import { categories, phrases, repairs, scenarios } from './catalog';
-import { applyRepair, nextNode, validateScenario, type Scenario } from './model';
+import { applyRepair, nextNode, pathTo, validateScenario, walk, type Scenario } from './model';
+import { parseRoute, href } from '../route';
 
 const endings = (s: Scenario) => Object.entries(s.nodes).filter(([, n]) => !n.choices.length);
 
@@ -52,6 +53,14 @@ describe('scenario catalog', () => {
     expect(book.nodes.when.zh).toBe('好的。你想约几点？');
     expect(book.nodes.when.choices.map(c => c.en)).toEqual(['Tomorrow morning', 'Any time after three', 'What times are available?']);
     expect(book.nodes['morning-full'].en).toMatch(/fully booked/);
+  });
+
+  it('routes conversations by choice path; every node has a path from the start', () => {
+    for (const s of scenarios) for (const id of Object.keys(s.nodes)) expect(walk(s, pathTo(s, id)).nodeId).toBe(id);
+    expect(parseRoute(href.play('restaurant-ordering', ['recommend', 'spicy']))).toMatchObject({ view: 'play', nodeId: 'pork-spicy', path: ['recommend', 'spicy'] });
+    expect(parseRoute('#/play/restaurant-ordering/recommend/bogus/x')).toMatchObject({ nodeId: 'recommend', path: ['recommend'] });
+    expect(parseRoute('#/play/nope')).toEqual({ view: 'home' });
+    expect(parseRoute('#access_token=abc')).toEqual({ view: 'home' });
   });
 
   it('rejects broken graphs', () => {

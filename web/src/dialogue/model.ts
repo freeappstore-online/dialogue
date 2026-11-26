@@ -15,6 +15,7 @@ export type Scenario = {
   id: string;
   version: string;
   category: string;
+  icon: string;
   title: string;
   summary: string;
   start: string;
@@ -27,7 +28,7 @@ export type Phrase = Line & { id: string; replies: Line[] };
 const hasLine = (line?: Partial<Line>) => !!line?.zh && !!line.pinyin && !!line.en && /[一-鿿]/.test(line.zh);
 
 export function validateScenario(s: Scenario): void {
-  if (!s.id || !s.version || !s.category || !s.title || !s.summary || !s.nodes?.[s.start]) throw new Error(`Invalid scenario metadata: ${s.id}`);
+  if (!s.id || !s.version || !s.category || !s.icon || !s.title || !s.summary || !s.nodes?.[s.start]) throw new Error(`Invalid scenario metadata: ${s.id}`);
   for (const [id, node] of Object.entries(s.nodes)) {
     const where = `${s.id}/${id}`;
     if (!hasLine(node) || !node.speaker || !Array.isArray(node.choices)) throw new Error(`Invalid node: ${where}`);
@@ -50,6 +51,35 @@ export function validateScenario(s: Scenario): void {
   }
   const orphans = Object.keys(s.nodes).filter(id => !seen.has(id));
   if (orphans.length) throw new Error(`Unreachable nodes in ${s.id}: ${orphans.join(', ')}`);
+}
+
+/** Follow choice ids from the start; stops at the first id that doesn't apply. */
+export function walk(s: Scenario, path: string[]): { nodeId: string; path: string[] } {
+  let nodeId = s.start;
+  const valid: string[] = [];
+  for (const id of path) {
+    const choice = s.nodes[nodeId].choices.find(c => c.id === id);
+    if (!choice) break;
+    valid.push(id);
+    nodeId = choice.next;
+  }
+  return { nodeId, path: valid };
+}
+
+/** Shortest choice path from the start to a node. */
+export function pathTo(s: Scenario, target: string): string[] {
+  const prev = new Map<string, { from: string; choice: string }>();
+  const queue = [s.start];
+  for (let i = 0; i < queue.length && queue[i] !== target; i++) {
+    for (const c of s.nodes[queue[i]].choices) {
+      if (c.next === s.start || prev.has(c.next)) continue;
+      prev.set(c.next, { from: queue[i], choice: c.id });
+      queue.push(c.next);
+    }
+  }
+  const path: string[] = [];
+  for (let id = target; id !== s.start; id = prev.get(id)!.from) path.unshift(prev.get(id)!.choice);
+  return path;
 }
 
 export function nextNode(s: Scenario, nodeId: string, choiceId: string): string {

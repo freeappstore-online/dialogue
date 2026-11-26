@@ -15,6 +15,14 @@ describe('typed search', () => {
     expect(normalizePinyin('Nǐ yào qù nǎr?')).toBe('niyaoqunar');
   });
 
+  it('finds the moment to say something by matching prepared replies, below direct matches', () => {
+    const results = search(entries, 'bill', {});
+    expect(results[0].source).toMatchObject({ scenarioId: 'restaurant-bill', nodeId: 'anything-else' });
+    expect(search(entries, '买单', {}).some(e => e.source?.nodeId === 'anything-else')).toBe(true);
+    const direct = search(entries, 'which exit', ctx);
+    expect(direct[0].en).toMatch(/which exit/i);
+  });
+
   it('ranks the current turn first for shared lines', () => {
     const top = search(entries, '你要去哪儿', ctx)[0];
     expect(top.source).toMatchObject({ scenarioId: 'directions-subway', nodeId: 'where' });

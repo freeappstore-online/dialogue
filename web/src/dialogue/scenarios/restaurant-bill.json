@@ -2,6 +2,7 @@
   "id": "restaurant-bill",
   "version": "2.0.0",
   "category": "restaurant",
+  "icon": "🧾",
   "title": "Asking for and paying the bill",
   "summary": "Get the bill, pack leftovers, split the payment, fix a wrong dish and choose how to pay.",
   "start": "anything-else",

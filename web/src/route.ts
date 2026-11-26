@@ -1,26 +1,28 @@
 import { useEffect, useState } from 'react';
 import { scenarioById } from './dialogue/catalog';
+import { walk } from './dialogue/model';
 
-// App-owned route state lives in the hash, so the reading position survives
+// App-owned route state lives in the hash, so the whole conversation survives
 // a trip to the Shell's Profile screen (which returns to the full URL).
+// A conversation is its path of choice ids, so Back undoes one turn.
 export type Route =
   | { view: 'home' }
-  | { view: 'play'; scenarioId: string; nodeId: string }
+  | { view: 'play'; scenarioId: string; path: string[]; nodeId: string }
   | { view: 'script'; scenarioId: string }
   | { view: 'find'; scenarioId?: string; nodeId?: string };
 
 export function parseRoute(hash: string): Route {
-  const [view, a, b] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
+  const [view, a, ...rest] = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const scenario = scenarioById(a);
-  if (view === 'play' && scenario) return { view, scenarioId: scenario.id, nodeId: b && scenario.nodes[b] ? b : scenario.start };
+  if (view === 'play' && scenario) return { view, scenarioId: scenario.id, ...walk(scenario, rest) };
   if (view === 'script' && scenario) return { view, scenarioId: scenario.id };
-  if (view === 'find') return scenario && b && scenario.nodes[b] ? { view, scenarioId: scenario.id, nodeId: b } : { view };
+  if (view === 'find') return scenario && rest[0] && scenario.nodes[rest[0]] ? { view, scenarioId: scenario.id, nodeId: rest[0] } : { view };
   return { view: 'home' };
 }
 
 export const href = {
   home: '#/',
-  play: (scenarioId: string, nodeId?: string) => `#/play/${scenarioId}${nodeId ? `/${nodeId}` : ''}`,
+  play: (scenarioId: string, path: string[] = []) => ['#/play', scenarioId, ...path].join('/'),
   script: (scenarioId: string) => `#/script/${scenarioId}`,
   find: (scenarioId?: string, nodeId?: string) => (scenarioId && nodeId ? `#/find/${scenarioId}/${nodeId}` : '#/find'),
 };

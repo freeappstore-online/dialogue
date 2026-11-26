@@ -2,6 +2,7 @@
   "id": "restaurant-ordering",
   "version": "2.0.0",
   "category": "restaurant",
+  "icon": "🍜",
   "title": "Ordering food and drinks",
   "summary": "Order a dish, ask for a recommendation, handle a sold-out dish or a dietary need, then pick a drink.",
   "start": "order",

@@ -2,6 +2,7 @@
   "id": "appointment-change",
   "version": "1.0.0",
   "category": "appointments",
+  "icon": "🔁",
   "title": "Changing or cancelling an appointment",
   "summary": "Move an existing booking, handle a full day, cancel, or just check the time and address.",
   "start": "hello",
