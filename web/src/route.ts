@@ -9,14 +9,14 @@ export type Route =
   | { view: 'home' }
   | { view: 'play'; scenarioId: string; path: string[]; nodeId: string }
   | { view: 'script'; scenarioId: string }
-  | { view: 'find'; scenarioId?: string; nodeId?: string };
+  | { view: 'find'; scenarioId?: string; path?: string[]; nodeId?: string };
 
 export function parseRoute(hash: string): Route {
   const [view, a, ...rest] = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const scenario = scenarioById(a);
   if (view === 'play' && scenario) return { view, scenarioId: scenario.id, ...walk(scenario, rest) };
   if (view === 'script' && scenario) return { view, scenarioId: scenario.id };
-  if (view === 'find') return scenario && rest[0] && scenario.nodes[rest[0]] ? { view, scenarioId: scenario.id, nodeId: rest[0] } : { view };
+  if (view === 'find') return scenario ? { view, scenarioId: scenario.id, ...walk(scenario, rest) } : { view };
   return { view: 'home' };
 }
 
@@ -24,7 +24,8 @@ export const href = {
   home: '#/',
   play: (scenarioId: string, path: string[] = []) => ['#/play', scenarioId, ...path].join('/'),
   script: (scenarioId: string) => `#/script/${scenarioId}`,
-  find: (scenarioId?: string, nodeId?: string) => (scenarioId && nodeId ? `#/find/${scenarioId}/${nodeId}` : '#/find'),
+  /** The phrase finder; from a conversation, with its path so Back returns to the same thread. */
+  find: (scenarioId?: string, path: string[] = []) => (scenarioId ? ['#/find', scenarioId, ...path].join('/') : '#/find'),
 };
 
 export function navigate(to: string): void {

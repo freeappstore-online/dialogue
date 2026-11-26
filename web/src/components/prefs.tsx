@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import type { Line } from '../dialogue/model';
 import { alignPinyin } from '../dialogue/pinyin';
 
@@ -43,17 +43,19 @@ export function Zh({ line, className = '' }: { line: Line; className?: string })
   return <>
     {pinyin === 'above' && !ruby && <span className="pinyin-line">{line.pinyin}</span>}
     <span className={`zh ${className}`} lang="zh-CN">
-      {ruby ? ruby.map((r, i) => (r.rt === undefined ? <span key={i}>{r.text}</span> : <ruby key={i}>{r.text}<rt>{r.rt}</rt></ruby>)) : line.zh}
+      {/* Punctuation gets an empty pinyin slot so it sits on the characters' line. */}
+      {ruby ? ruby.map((r, i) => (r.rt === undefined ? <ruby key={i} className="punct">{r.text}<rt aria-hidden="true">{'\u00a0'}</rt></ruby> : <ruby key={i}>{r.text}<rt>{r.rt}</rt></ruby>)) : line.zh}
     </span>
     {pinyin === 'below' && <span className="pinyin-line">{line.pinyin}</span>}
   </>;
 }
 
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, ReactNode, string][]; onChange: (v: T) => void }) {
+  const id = useId();
   return <div className="list-row setting">
-    <span className="list-main"><strong id={`seg-${label}`}>{label}</strong></span>
-    <div className="segmented" role="radiogroup" aria-labelledby={`seg-${label}`}>
-      {options.map(([v, text, aria]) => <button key={v} type="button" role="radio" aria-checked={value === v} aria-label={aria} className={value === v ? 'on' : ''} onClick={() => onChange(v)}>{text}</button>)}
+    <span className="list-main"><strong id={id}>{label}</strong></span>
+    <div className="segmented" role="group" aria-labelledby={id}>
+      {options.map(([v, text, aria]) => <button key={v} type="button" aria-pressed={value === v} aria-label={aria} className={value === v ? 'on' : ''} onClick={() => onChange(v)}>{text}</button>)}
     </div>
   </div>;
 }

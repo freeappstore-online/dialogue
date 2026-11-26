@@ -15,7 +15,7 @@ function Screen({ route }: { route: Route }) {
   switch (route.view) {
     case 'play': return <DialoguePlayer key={route.scenarioId} scenario={scenarioById(route.scenarioId)!} path={route.path} nodeId={route.nodeId} />;
     case 'script': return <ScriptView scenario={scenarioById(route.scenarioId)!} />;
-    case 'find': return <Finder key={`${route.scenarioId}/${route.nodeId}`} scenarioId={route.scenarioId} nodeId={route.nodeId} />;
+    case 'find': return <Finder key={`${route.scenarioId}/${route.nodeId}`} scenarioId={route.scenarioId} path={route.path} nodeId={route.nodeId} />;
     default: return <Home />;
   }
 }

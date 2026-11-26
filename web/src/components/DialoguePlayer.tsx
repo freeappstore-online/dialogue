@@ -14,7 +14,8 @@ const isBlocked = (e: unknown) => e instanceof DOMException && e.name === 'NotAl
 export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario; path: string[]; nodeId: string }) {
   const node = scenario.nodes[nodeId];
   const [{ meaning, delay, autoplay, playThem, playYou }] = useDisplay();
-  const [ready, setReady] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [listenError, setListenError] = useState('');
   const [warning, setWarning] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [hint, setHint] = useState(false);
@@ -25,16 +26,22 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
   const [heard, setHeard] = useState<string[] | null>(null);
   const [sheet, setSheet] = useState<'help' | 'settings' | null>(null);
   const run = useRef(0); // invalidates an interrupted repair sequence
+  const label = useRef<HTMLSpanElement>(null);
+  const moved = useRef(false); // the user picked or changed a reply: the pressed button is gone
+  const endHeading = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    setReady(false); setWarning(''); setSelected(null); setHint(false); setRemaining(0); setRepairLog([]); setFallback(''); setRevealed(false); setHeard(null);
+    // A new turn replaces the button that was pressed: put focus on the new prompt (or the ending).
+    const focusFrame = requestAnimationFrame(() => (label.current ?? endHeading.current)?.focus({ preventScroll: true }));
+    setPlaying(false); setWarning(''); setSelected(null); setHint(false); setRemaining(0); setRepairLog([]); setFallback(''); setRevealed(false); setHeard(null); setListenError('');
     let active = true;
     run.current++;
-    if (!autoplay) { setReady(true); return; }
+    if (!autoplay) return () => cancelAnimationFrame(focusFrame);
+    setPlaying(true);
     playLine('them', node.zh)
-      .catch(e => { if (active) setWarning(isBlocked(e) ? 'Tap ▶ to hear the line.' : 'Audio could not play. Read the line and reply.'); })
-      .finally(() => { if (active) setReady(true); });
-    return () => { active = false; stopAudio(); };
+      .catch(e => { if (active) setWarning(isBlocked(e) ? 'Tap ▶ on the message to hear it.' : 'Audio could not play. Read the line and reply.'); })
+      .finally(() => { if (active) setPlaying(false); });
+    return () => { active = false; cancelAnimationFrame(focusFrame); stopAudio(); };
     // autoplay is read at the start of a turn only: changing the setting must not replay the line.
   }, [scenario.id, nodeId, node.zh]);
 
@@ -45,7 +52,14 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
   }, [remaining]);
 
   // Keep the newest message in view: scroll the page to its end, where the dock sits in its own place.
-  useEffect(() => { window.scrollTo({ top: document.documentElement.scrollHeight }); }, [nodeId, repairLog.length, fallback, warning]);
+  useEffect(() => { if (moved.current) { moved.current = false; label.current?.focus({ preventScroll: true }); } }, [selected]);
+
+  // Two frames later: after a navigation the Shell scrolls to the top one frame later.
+  useEffect(() => {
+    let inner = 0;
+    const outer = requestAnimationFrame(() => { inner = requestAnimationFrame(() => window.scrollTo({ top: document.documentElement.scrollHeight })); });
+    return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
+  }, [nodeId, repairLog.length, fallback, warning, selected]);
 
   // The thread so far, rebuilt from the path in the URL.
   const thread: Bubble[] = [];
@@ -76,11 +90,13 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
   };
   const choice = node.choices.find(c => c.id === selected);
   const check = choice && heard ? matchTranscripts([{ ...choice, key: choice.id, replies: [] }], heard, {})[0] : undefined;
-  const pick = (id: string) => { setSelected(id); setHint(false); setHeard(null); setRemaining(delay); };
+  const pick = (id: string) => { stopAudio(); moved.current = true; setSelected(id); setHint(false); setHeard(null); setListenError(''); setRemaining(delay); };
+  const slow = (voice: 'them' | 'you', zh: string, label: string) =>
+    <button type="button" className="speed-btn" aria-label={label} title={label} onClick={() => { void playLine(voice, zh, 0.7).catch(() => {}); }}>Slow</button>;
 
   return <div className="app">
     <TopBar back={href.home} backLabel="All conversations" title={scenario.title} subtitle={`${scenario.icon} ${categoryOf(scenario).title}`}
-      action={<IconButton icon="more" label="Settings" onClick={() => setSheet('settings')} />} />
+      action={<IconButton icon="more" label="Conversation menu" onClick={() => setSheet('settings')} />} />
 
     <div className="app-body thread" aria-live="polite">
       {thread.map((b, i) => b.from === 'them'
@@ -92,7 +108,7 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
               {(meaning || (b.current && revealed)) && <p className="meaning">{b.line.en}</p>}
               {playThem && <div className="bubble-actions">
                 <PlayButton voice="them" zh={b.line.zh} label={`Play: ${b.line.en}`} />
-                {b.current && <IconButton icon="slow" label="Play slower" className="small" onClick={() => { void playLine('them', node.zh, 0.7).catch(() => {}); }} />}
+                {slow('them', b.line.zh, 'Play slower')}
               </div>}
             </div>
           </div>
@@ -102,7 +118,7 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
               {meaning && <p className="meaning">{b.line.en}</p>}
               {playYou && <div className="bubble-actions">
                 <PlayButton voice="you" zh={b.line.zh} label={`Play my reply: ${b.line.en}`} />
-                <IconButton icon="slow" label="Play my reply slower" className="small" onClick={() => { void playLine('you', b.line.zh, 0.7).catch(() => {}); }} />
+                {slow('you', b.line.zh, 'Play my reply slower')}
               </div>}
             </div>
           </div>)}
@@ -110,7 +126,7 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
       {fallback && <p className="system-note" role="status">{fallback} <button type="button" className="text-btn" onClick={() => setRevealed(true)}>Show meaning</button></p>}
       {revealed && !meaning && <p className="system-note">Meaning shown as a learner aid — in real life they may not translate.</p>}
       {repairLog.length > 0 && node.choices.length > 0 && <p className="system-note">Still the same turn — reply when you’re ready.</p>}
-      {!node.choices.length && <div className="end-card" role="status"><span aria-hidden="true">🎉</span><strong>Conversation complete</strong><p>{node.outcome}</p></div>}
+      {!node.choices.length && <div className="end-card" role="status"><span aria-hidden="true">🎉</span><strong ref={endHeading} tabIndex={-1} data-fas-page-heading="">Conversation complete</strong><p>{node.outcome}</p></div>}
     </div>
 
     <div className="dock">
@@ -120,26 +136,28 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
           <a className="btn primary grow" href={href.play(scenario.id)}>Start over</a>
         </div> : choice ? <>
           <div className="composer-head">
-            <span className="composer-label">You mean</span>
-            <button type="button" className="text-btn" onClick={() => setSelected(null)}>Change</button>
+            <span ref={label} className="composer-label" tabIndex={-1} data-fas-page-heading="">Your reply</span>
+            <button type="button" className="text-btn" onClick={() => { moved.current = true; setSelected(null); }}>Change</button>
           </div>
-          <p className="intent">{choice.en}</p>
+          <p className="intent">“{choice.en}”</p>
+          <p className="instruction">Say it <strong>in Mandarin, out loud</strong>, then tap Send.</p>
           {remaining > 0
-            ? <p className="hint-text" role="timer">Say it aloud first — hint in {remaining}s</p>
+            ? <p className="hint-text" role="timer">Try it yourself first — help in {remaining}s</p>
             : hint ? <LineBlock line={choice} voice="you" meaning={false} />
-            : <button type="button" className="text-btn" onClick={() => setHint(true)}>Show the Mandarin</button>}
+            : <button type="button" className="btn small-btn" onClick={() => setHint(true)}>Show me how to say it</button>}
           {heard && <p className="hint-text" role="status">Heard “<span lang="zh-CN">{heard[0]}</span>” — {check?.exact ? 'exact text match with the hint.' : check ? 'close to the hint text.' : 'different from the hint; fine if you said it another way.'} Words only, not tones.</p>}
+          {listenError && <p className="hint-text" role="status">{listenError}</p>}
           <div className="composer-row">
-            <ListenButton compact label="Check my reply (optional)" onHeard={setHeard} />
+            <ListenButton compact label="Check my reply (optional)" onHeard={setHeard} onError={setListenError} />
             <button type="button" className="btn primary grow" onClick={() => navigate(href.play(scenario.id, [...path, choice.id]))}>Send <Icon name="send" /></button>
           </div>
         </> : <>
           <div className="composer-head">
-            <span className="composer-label">{ready ? 'Choose your reply' : 'Listening…'}</span>
-            {!ready && <button type="button" className="text-btn" onClick={() => { stopAudio(); setReady(true); }}>Skip audio</button>}
+            <span ref={label} className="composer-label" tabIndex={-1} data-fas-page-heading="">Your turn</span>
+            {playing && <button type="button" className="text-btn" onClick={() => { stopAudio(); setPlaying(false); }}>Stop audio</button>}
             <button type="button" className="pill small" onClick={() => setSheet('help')}><Icon name="help" /><span>Help</span></button>
           </div>
-          <div className="reply-options">{node.choices.map(c => <button type="button" key={c.id} className="reply-option" disabled={!ready} onClick={() => pick(c.id)}>{c.en}</button>)}</div>
+          <div className="reply-options">{node.choices.map(c => <button type="button" key={c.id} className="reply-option" onClick={() => pick(c.id)}>{c.en}</button>)}</div>
         </>}
       </div>
       <StatusBar />
@@ -150,15 +168,16 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
       <div className="list">{repairs.map(r => <button type="button" key={r.id} className="list-row" onClick={() => void askRepair(r)}>
         <span className="list-main"><strong>{r.en}</strong><span className="row-zh small"><Zh line={r} /></span></span><Icon name="chevron" />
       </button>)}</div>
-      <a className="list-row" href={href.find(scenario.id, nodeId)}><span className="list-main"><strong>Heard something else?</strong><span>Find the phrase and ready replies</span></span><Icon name="search" /></a>
+      <a className="list-row" href={href.find(scenario.id, path)}><span className="list-main"><strong>Heard something else?</strong><span>Find the phrase and ready replies</span></span><Icon name="search" /></a>
     </Sheet>
 
-    <Sheet open={sheet === 'settings'} onClose={() => setSheet(null)} title="Settings">
-      <DisplaySettings />
-      <div className="list spaced">
+    <Sheet open={sheet === 'settings'} onClose={() => setSheet(null)} title="Conversation">
+      <div className="list">
         <a className="list-row" href={href.script(scenario.id)}><span className="list-main"><strong>Full script</strong><span>Every line and where each reply leads</span></span><Icon name="script" /></a>
         {path.length > 0 && <a className="list-row" href={href.play(scenario.id)}><span className="list-main"><strong>Restart conversation</strong></span><Icon name="chevron" /></a>}
       </div>
+      <h3 className="section-label sheet-section">Display</h3>
+      <DisplaySettings />
       <p className="hint-text">{AUDIO_NOTE}</p>
     </Sheet>
   </div>;

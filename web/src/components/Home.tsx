@@ -6,9 +6,14 @@ export function Home() {
   return <div className="app">
     <div className="app-body">
       <header className="screen-head">
-        <div className="screen-title"><h1>Practice</h1><SettingsButton /></div>
-        <p>Mandarin conversations · hear it, pick a reply, say it aloud</p>
+        <div className="screen-title"><h1 tabIndex={-1} data-fas-page-heading="">Practice</h1><SettingsButton /></div>
+        <p>Short, real-life Mandarin conversations.</p>
       </header>
+      <ol className="how" aria-label="How it works">
+        <li><span aria-hidden="true">👂</span><span><strong>Listen</strong> to what they say</span></li>
+        <li><span aria-hidden="true">👆</span><span><strong>Pick</strong> what you want to say</span></li>
+        <li><span aria-hidden="true">🗣️</span><span><strong>Say it</strong> in Mandarin, then send</span></li>
+      </ol>
       <a className="search-pill" href={href.find()}><Icon name="search" /><span>Heard something? Find a phrase</span></a>
       <AudioChip />
       {categories.map(c => <section key={c.id} className="section" aria-labelledby={`cat-${c.id}`}>
@@ -17,7 +22,7 @@ export function Home() {
           <a className="tile" href={href.play(s.id)}>
             <span className="tile-icon" aria-hidden="true">{s.icon}</span>
             <span className="tile-title">{s.title}</span>
-            <span className="tile-meta">{Object.values(s.nodes).filter(n => !n.choices.length).length} endings</span>
+            <span className="tile-meta">{s.summary}</span>
           </a>
         </li>)}</ul>
       </section>)}

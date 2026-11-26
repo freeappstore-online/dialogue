@@ -93,9 +93,19 @@ export function TabBar({ active }: { active: 'home' | 'find' }) {
 }
 
 export function TopBar({ back, backLabel, title, subtitle, action }: { back: string; backLabel: string; title: string; subtitle?: string; action?: ReactNode }) {
+  // Pinned just below the Shell's sticky header, whatever its height (it wraps on narrow screens).
+  useEffect(() => {
+    const header = document.querySelector('header');
+    if (!header) return;
+    const sync = () => document.documentElement.style.setProperty('--shell-header-h', `${header.offsetHeight}px`);
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
   return <div className="topbar">
     <a className="icon-btn" href={back} aria-label={backLabel} title={backLabel}><Icon name="back" /></a>
-    <div className="topbar-title"><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
+    <div className="topbar-title"><h1 tabIndex={-1} data-fas-page-heading="">{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
     {action ?? <span className="icon-btn-spacer" />}
   </div>;
 }
@@ -103,11 +113,14 @@ export function TopBar({ back, backLabel, title, subtitle, action }: { back: str
 const CONSENT_KEY = 'dialogue:speech-consent';
 
 /** One deliberate tap listens for one short utterance. Optional; never required. */
-export function ListenButton({ label, onHeard, compact = false }: { label: string; onHeard: (alternatives: string[]) => void; compact?: boolean }) {
+/** With `onError`, failures are reported to the caller instead of shown here (for buttons inside a row). */
+export function ListenButton({ label, onHeard, onError, compact = false }: { label: string; onHeard: (alternatives: string[]) => void; onError?: (message: string) => void; compact?: boolean }) {
   const [consented, setConsented] = usePref(CONSENT_KEY, false);
   const [asking, setAsking] = useState(false);
   const [listening, setListening] = useState(false);
-  const [error, setError] = useState('');
+  const [ownError, setOwnError] = useState('');
+  const setError = onError ?? setOwnError;
+  const error = onError ? '' : ownError;
   const active = useRef<{ cancel: () => void } | null>(null);
   useEffect(() => {
     const removeGuard = pwa.addBusyGuard(() => active.current !== null);

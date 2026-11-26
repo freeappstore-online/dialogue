@@ -5,9 +5,11 @@ vi.mock('./community-sets.json', () => ({ default: { them: 'set-them' } }));
 /** A stand-in <audio>: a source whose URL contains "broken" fails to load. */
 class FakeAudio extends EventTarget {
   static played: string[] = [];
+  static made = 0;
   playbackRate = 1;
+  defaultPlaybackRate = 1;
   preservesPitch = false;
-  constructor(public src: string) { super(); }
+  constructor(public src = '') { super(); FakeAudio.made++; }
   play() {
     FakeAudio.played.push(this.src);
     if (this.src.includes('broken')) {
@@ -57,6 +59,20 @@ describe('community audio', () => {
     const { audioPath, playLine } = await load(key => [{ key: key('them', '你好！'), url: 'https://api/broken.m4a' }]);
     await playLine('them', '你好！');
     expect(FakeAudio.played).toEqual(['https://api/broken.m4a', `/${audioPath('them', '你好！')}`]);
+  });
+
+  it('reuses one element, unlocks it on the first tap, and old lines never hear new events', async () => {
+    const { playLine, unlockAudio, stopAudio } = await load(() => []);
+    unlockAudio();
+    expect(FakeAudio.played[0]).toMatch(/^data:audio\/wav/);
+    FakeAudio.made = 0;
+    const first = playLine('them', '你好！');
+    stopAudio();
+    await first; // a stopped line resolves
+    await playLine('you', '好的。');
+    await playLine('them', '谢谢。', 0.7);
+    expect(FakeAudio.made).toBe(0); // the element from unlockAudio is reused
+    expect(FakeAudio.played.filter(src => src.endsWith('.mp3'))).toHaveLength(3);
   });
 
   it('plays the bundled MP3s when the manifest is unreachable', async () => {

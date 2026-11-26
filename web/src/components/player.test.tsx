@@ -40,7 +40,7 @@ it('plays a turn manually with no microphone and no audio', async () => {
   expect(zhText(host.querySelector('.bubble-row.current'))).toContain('请问您想点什么？');
   await click(button('What do you recommend?'));
   expect(host.querySelector('[aria-label="Check my reply (optional)"]')).toBeNull();
-  await click(button('Show the Mandarin'));
+  await click(button('Show me how to say it'));
   expect(zhText(host.querySelector('.composer'))).toContain('你们有什么推荐？');
   await click(button('Send'));
   expect(window.location.hash).toBe('#/play/restaurant-ordering/recommend');
@@ -95,20 +95,46 @@ it('finder opens a phrase sheet with replies without advancing anything', async 
   expect(window.location.hash).toBe('');
 });
 
-it('replies become available when a repair interrupts the playing line', async () => {
+it('replies can be chosen while the line plays, which stops it, and focus follows', async () => {
   vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined); // plays, never ends
+  const pause = vi.mocked(HTMLMediaElement.prototype.pause);
   await play('restaurant-ordering');
-  expect(host.querySelector('.reply-option:disabled')).not.toBeNull();
+  expect(host.querySelector('.reply-option:disabled')).toBeNull();
+  expect(button('Stop audio')).toBeDefined();
+  pause.mockClear();
+  await click(button('What do you recommend?'));
+  expect(pause).toHaveBeenCalled();
+  expect(document.activeElement?.textContent).toBe('Your reply');
+  expect(host.textContent).toContain('in Mandarin, out loud');
+  await click(button('Change'));
+  expect(document.activeElement?.textContent).toBe('Your turn');
+});
+
+it('a repair during playback leaves every reply available', async () => {
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+  await play('restaurant-ordering');
   await help();
   await click(button(/Could you repeat that\?/));
   expect(host.querySelector('.reply-option:disabled')).toBeNull();
+  expect(host.querySelectorAll('.reply-option')).toHaveLength(4);
+});
+
+it('the phrase finder returns to the exact thread', async () => {
+  await play('restaurant-ordering', ['rice', 'else']);
+  await help();
+  const link = [...host.querySelectorAll('a')].find(a => a.textContent?.includes('Heard something else'))!;
+  expect(link.getAttribute('href')).toBe('#/find/restaurant-ordering/rice/else');
+  act(() => root.unmount());
+  root = createRoot(host);
+  await render(<Finder scenarioId="restaurant-ordering" path={['rice', 'else']} nodeId="recommend" />);
+  expect(host.querySelector('.context-chip')?.getAttribute('href')).toBe('#/play/restaurant-ordering/rice/else');
 });
 
 it('sent replies can be played too, and pinyin sits above each character', async () => {
   await play('restaurant-ordering', ['recommend']);
   const mine = host.querySelector('.bubble-row.you')!;
   expect(mine.querySelector('[aria-label="Play my reply: What do you recommend?"]')).not.toBeNull();
-  const ruby = [...mine.querySelectorAll('ruby')].map(r => [r.firstChild?.textContent, r.querySelector('rt')?.textContent]);
+  const ruby = [...mine.querySelectorAll('ruby:not(.punct)')].map(r => [r.firstChild?.textContent, r.querySelector('rt')?.textContent]);
   expect(ruby.slice(0, 3)).toEqual([['你', 'nǐ'], ['们', 'men'], ['有', 'yǒu']]);
   const spy = vi.mocked(HTMLMediaElement.prototype.play);
   spy.mockClear();
@@ -138,8 +164,8 @@ it('auto-play off leaves the replies ready without playing', async () => {
 it('changing a setting in the sheet updates the conversation live', async () => {
   await play('restaurant-ordering');
   expect(host.querySelector('.bubble-row.current ruby')).not.toBeNull();
-  await click(host.querySelector('[aria-label="Settings"]')!);
-  await click(host.querySelector('[role="radio"][aria-label="No pinyin"]')!);
+  await click(host.querySelector('[aria-label="Conversation menu"]')!);
+  await click(host.querySelector('button[aria-pressed][aria-label="No pinyin"]')!);
   expect(host.querySelector('.bubble-row.current ruby')).toBeNull();
   expect(JSON.parse(localStorage.getItem('dialogue:display')!).pinyin).toBe('off');
 });
