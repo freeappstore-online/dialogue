@@ -1,0 +1,53 @@
+name: Community audio jobs
+
+# Queues every Mandarin line as a community generation job on the platform (dialogue#10,
+# freeappstore-online/platform#727): contributors' devices speak them with Kokoro, the platform
+# verifies each upload, and the app plays the accepted ones in place of the bundled MP3s.
+# Run by hand; re-running re-sends the same jobs, which changes nothing. Authenticates with this
+# run's GitHub OIDC token, which the platform accepts only from main of the app's own repository.
+# The first real run creates the two job sets (one per speaker), commits their ids to
+# web/src/dialogue/community-sets.json, then redeploys so the app reads them.
+# dry_run lists the jobs and calls nothing. Details: scripts/community-audio.py.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only list the jobs; create and send nothing
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: community-audio
+  cancel-in-progress: false
+
+jobs:
+  enqueue:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # commits community-sets.json on the first run
+      actions: write    # then redeploys the app
+      id-token: write   # the platform's owner credential
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Queue the lines
+        run: python scripts/community-audio.py ${{ inputs.dry_run && '--dry-run' || '' }}
+      - name: Commit new job sets and redeploy
+        if: ${{ !cancelled() }}  # keep a set created before a later call failed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git diff --quiet web/src/dialogue/community-sets.json && exit 0
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -qm "chore(audio): community audio job sets (community-sets.json)" web/src/dialogue/community-sets.json
+          git pull -q --rebase && git push -q
+          # A push with the workflow token starts no workflow, so deploy by hand
+          gh workflow run deploy.yml --ref main

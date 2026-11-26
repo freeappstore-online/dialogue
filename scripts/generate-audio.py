@@ -5,35 +5,12 @@ Set KOKORO_MODELS to a directory containing kokoro-v1.0.onnx and voices-v1.0.bin
 Install kokoro-onnx==0.6.1 and soundfile==0.14.0; ffmpeg must be on PATH.
 Set SHARD=i/n to run n workers in parallel. Existing files are kept; files no longer referenced are removed. Recordings require listening review.
 """
-import json, os, subprocess, sys, tempfile
+import os, subprocess, sys, tempfile
 from pathlib import Path
 
-root = Path(__file__).resolve().parents[1]
-data = root / 'web/src/dialogue'
-out = root / 'web/public/audio/zh'
-VOICES = {'them': 'zf_xiaobei', 'you': 'zm_yunxi'}
+from audio_lines import VOICES, key, lines
 
-
-def key(voice, zh):  # FNV-1a 32-bit, must match web/src/dialogue/audio.ts
-    h = 0x811c9dc5
-    for b in f'{voice}:{zh}'.encode('utf8'):
-        h = ((h ^ b) * 0x01000193) & 0xffffffff
-    return f'{h:08x}'
-
-
-def lines():
-    for path in sorted((data / 'scenarios').glob('*.json')):
-        for node in json.loads(path.read_text('utf8'))['nodes'].values():
-            yield 'them', node['zh']
-            for v in node.get('variants', []): yield 'them', v['zh']
-            if 'rephrase' in node: yield 'them', node['rephrase']['zh']
-            for c in node['choices']: yield 'you', c['zh']
-    for r in json.loads((data / 'repairs.json').read_text('utf8')):
-        yield 'you', r['zh']
-        yield 'them', r['response']['zh']
-    for p in json.loads((data / 'phrases.json').read_text('utf8')):
-        yield 'them', p['zh']
-        for r in p['replies']: yield 'you', r['zh']
+out = Path(__file__).resolve().parents[1] / 'web/public/audio/zh'
 
 
 def main():
