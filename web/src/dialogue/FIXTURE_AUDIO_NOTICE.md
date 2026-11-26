@@ -1,0 +1,1 @@
+The files in public/audio/fixture/ are empty, unreviewed fixtures. They contain no recorded speech and are not a production audio pack. Replace them with licensed or original reviewed Mandarin recordings before presenting audio as available.

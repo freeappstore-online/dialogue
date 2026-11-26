@@ -1,0 +1,115 @@
+{
+  "version": "1.0.0",
+  "scenario": "restaurant-ordering",
+  "start": "greet",
+  "nodes": {
+    "greet": {
+      "speaker": "waiter",
+      "zh": "??????????",
+      "pinyin": "Hu?ny?ng gu?ngl?n! Q?ngw?n j? w?i?",
+      "en": "Welcome! How many people?",
+      "choices": [
+        {
+          "id": "one",
+          "zh": "??????",
+          "pinyin": "Ji? w? y? ge r?n.",
+          "en": "Just me (one person)",
+          "next": "seat"
+        },
+        {
+          "id": "two",
+          "zh": "??????",
+          "pinyin": "W?men li?ng ge r?n.",
+          "en": "Two of us",
+          "next": "seat"
+        }
+      ],
+      "audio": "fixture/greet-unreviewed.mp3"
+    },
+    "seat": {
+      "speaker": "waiter",
+      "zh": "??????????????",
+      "pinyin": "H?o de, q?ng zu?. Q?ngw?n n?n xi?ng di?n sh?nme?",
+      "en": "Please have a seat. What would you like to order?",
+      "choices": [
+        {
+          "id": "noodles",
+          "zh": "????????",
+          "pinyin": "W? xi?ng y?o y? w?n mi?nti?o.",
+          "en": "I would like a bowl of noodles",
+          "next": "noodles-end"
+        },
+        {
+          "id": "rice",
+          "zh": "??????",
+          "pinyin": "W? xi?ng y?o ch?of?n.",
+          "en": "I would like fried rice",
+          "next": "rice-end"
+        },
+        {
+          "id": "recommend",
+          "zh": "????????",
+          "pinyin": "N?men y?u sh?nme tu?ji?n?",
+          "en": "What do you recommend?",
+          "next": "recommend"
+        }
+      ],
+      "audio": "fixture/seat-unreviewed.mp3"
+    },
+    "recommend": {
+      "speaker": "waiter",
+      "zh": "???????????",
+      "pinyin": "W?men de zh?op?i c?i sh? h?ngsh?or?u.",
+      "en": "Our specialty is braised pork.",
+      "choices": [
+        {
+          "id": "accept",
+          "zh": "???????",
+          "pinyin": "H?o, w? y?o n?ge.",
+          "en": "Great, I will have that",
+          "next": "pork-end"
+        },
+        {
+          "id": "look",
+          "zh": "????????",
+          "pinyin": "Xi?xie, w? z?i k?nkan.",
+          "en": "Thanks, let me look more",
+          "next": "more-end"
+        }
+      ],
+      "audio": "fixture/recommend-unreviewed.mp3"
+    },
+    "noodles-end": {
+      "speaker": "waiter",
+      "zh": "???????????????",
+      "pinyin": "H?o de, y? w?n mi?nti?o. M?sh?ng l?i, xi?xie!",
+      "en": "One bowl of noodles, coming right up. Thank you!",
+      "choices": [],
+      "audio": "fixture/noodles-end-unreviewed.mp3"
+    },
+    "rice-end": {
+      "speaker": "waiter",
+      "zh": "???????????????",
+      "pinyin": "H?o de, y? f?n ch?of?n. M?sh?ng l?i, xi?xie!",
+      "en": "One fried rice, coming right up. Thank you!",
+      "choices": [],
+      "audio": "fixture/rice-end-unreviewed.mp3"
+    },
+    "pork-end": {
+      "speaker": "waiter",
+      "zh": "????????????????",
+      "pinyin": "H?o de, y? f?n h?ngsh?or?u. M?sh?ng l?i, xi?xie!",
+      "en": "One braised pork, coming right up. Thank you!",
+      "choices": [],
+      "audio": "fixture/pork-end-unreviewed.mp3"
+    },
+    "more-end": {
+      "speaker": "waiter",
+      "zh": "???????????????",
+      "pinyin": "H?o de, n?n m?nman k?n. X?y?o sh? q?ng ji?o w?.",
+      "en": "Take your time. Please call me when you are ready.",
+      "choices": [],
+      "audio": "fixture/more-end-unreviewed.mp3"
+    }
+  }
+}
