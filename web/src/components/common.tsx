@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Modal, StatusBar } from '@freeappstore/sdk/ui';
-import { playLine, stopAudio, type Voice } from '../dialogue/audio';
+import { stopAudio, type Voice } from '../dialogue/audio';
 import type { Line } from '../dialogue/model';
 import { ListenError, listenMessage, listenOnce, recognitionCtor } from '../dialogue/speech';
 import { pwa } from '../fas-capabilities/pwa';
 import { href } from '../route';
-import { DisplaySettings, useDisplay, Zh } from './prefs';
+import { DisplaySettings, useDisplay, useSpeak, Zh } from './prefs';
 
 /** A device-local preference (localStorage, JSON encoded). */
 export function usePref<T>(key: string, initial: T): [T, (value: T) => void] {
@@ -46,10 +46,11 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   return <Modal open={open} onClose={onClose} title={title}><div className="sheet">{children}</div></Modal>;
 }
 
-export function PlayButton({ voice, zh, rate = 1, label = 'Play audio' }: { voice: Voice; zh: string; rate?: number; label?: string }) {
+export function PlayButton({ voice, line, slower = false, label = 'Play audio' }: { voice: Voice; line: Line; slower?: boolean; label?: string }) {
   const [failed, setFailed] = useState(false);
+  const speak = useSpeak();
   return <button type="button" className={`icon-btn small ${failed ? 'failed' : ''}`} aria-label={failed ? `${label} (audio unavailable)` : label} title={failed ? 'Audio unavailable' : label}
-    onClick={() => { setFailed(false); playLine(voice, zh, rate).catch(() => setFailed(true)); }}><Icon name="play" /></button>;
+    onClick={() => { setFailed(false); speak(voice, line, slower).catch(() => setFailed(true)); }}><Icon name="play" /></button>;
 }
 
 /** A Mandarin line with pinyin, meaning and a play button, as the display settings say. */
@@ -57,7 +58,7 @@ export function LineBlock({ line, voice, meaning }: { line: Line; voice: Voice; 
   const [d] = useDisplay();
   const play = voice === 'them' ? d.playThem : d.playYou;
   return <div className="line">
-    <div className="line-zh"><span className="line-text"><Zh line={line} /></span>{play && <PlayButton voice={voice} zh={line.zh} label={`Play: ${line.en}`} />}</div>
+    <div className="line-zh"><span className="line-text"><Zh line={line} /></span>{play && <PlayButton voice={voice} line={line} label={`Play: ${line.en}`} />}</div>
     {(meaning ?? d.meaning) && <p className="meaning">{line.en}</p>}
   </div>;
 }

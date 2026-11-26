@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { StatusBar } from '@freeappstore/sdk/ui';
-import { playLine, stopAudio } from '../dialogue/audio';
+import { stopAudio } from '../dialogue/audio';
 import { categoryOf, repairs } from '../dialogue/catalog';
 import { matchTranscripts } from '../dialogue/finder';
 import { applyRepair, type Line, type Repair, type Scenario } from '../dialogue/model';
 import { href, navigate } from '../route';
 import { AUDIO_NOTE, Icon, IconButton, LineBlock, ListenButton, PlayButton, Sheet, TopBar } from './common';
-import { DisplaySettings, useDisplay, Zh } from './prefs';
+import { DisplaySettings, useDisplay, useSpeak, Zh } from './prefs';
 
 type Bubble = { key: string; from: 'them' | 'you'; line: Line; speaker?: string; current?: boolean };
 const isBlocked = (e: unknown) => e instanceof DOMException && e.name === 'NotAllowedError';
@@ -14,6 +14,9 @@ const isBlocked = (e: unknown) => e instanceof DOMException && e.name === 'NotAl
 export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario; path: string[]; nodeId: string }) {
   const node = scenario.nodes[nodeId];
   const [{ meaning, delay, autoplay, playThem, playYou }] = useDisplay();
+  const speak = useSpeak();
+  const speakNow = useRef(speak); // the autoplay effect reads the current settings without re-running on them
+  speakNow.current = speak;
   const [playing, setPlaying] = useState(false);
   const [listenError, setListenError] = useState('');
   const [warning, setWarning] = useState('');
@@ -38,7 +41,7 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
     run.current++;
     if (!autoplay) return () => cancelAnimationFrame(focusFrame);
     setPlaying(true);
-    playLine('them', node.zh)
+    speakNow.current('them', node)
       .catch(e => { if (active) setWarning(isBlocked(e) ? 'Tap ▶ on the message to hear it.' : 'Audio could not play. Read the line and reply.'); })
       .finally(() => { if (active) setPlaying(false); });
     return () => { active = false; cancelAnimationFrame(focusFrame); stopAudio(); };
@@ -84,15 +87,15 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
     if (outcome.revealMeaning) setRevealed(true);
     const mine = ++run.current;
     try {
-      if (outcome.response) await playLine('them', outcome.response.zh);
-      if (outcome.replay && mine === run.current) await playLine('them', outcome.replay.zh, outcome.rate);
+      if (outcome.response) await speak('them', outcome.response);
+      if (outcome.replay && mine === run.current) await speak('them', outcome.replay, outcome.rate !== undefined);
     } catch { /* the text is in the thread */ }
   };
   const choice = node.choices.find(c => c.id === selected);
   const check = choice && heard ? matchTranscripts([{ ...choice, key: choice.id, replies: [] }], heard, {})[0] : undefined;
   const pick = (id: string) => { stopAudio(); moved.current = true; setSelected(id); setHint(false); setHeard(null); setListenError(''); setRemaining(delay); };
-  const slow = (voice: 'them' | 'you', zh: string, label: string) =>
-    <button type="button" className="speed-btn" aria-label={label} title={label} onClick={() => { void playLine(voice, zh, 0.7).catch(() => {}); }}>Slow</button>;
+  const slow = (voice: 'them' | 'you', line: Line, label: string) =>
+    <button type="button" className="speed-btn" aria-label={label} title={label} onClick={() => { void speak(voice, line, true).catch(() => {}); }}>Slow</button>;
 
   return <div className="app">
     <TopBar back={href.home} backLabel="All conversations" title={scenario.title} subtitle={`${scenario.icon} ${categoryOf(scenario).title}`}
@@ -107,8 +110,8 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
               <p className="bubble-text"><Zh line={b.line} className="bubble-zh" /></p>
               {(meaning || (b.current && revealed)) && <p className="meaning">{b.line.en}</p>}
               {playThem && <div className="bubble-actions">
-                <PlayButton voice="them" zh={b.line.zh} label={`Play: ${b.line.en}`} />
-                {slow('them', b.line.zh, 'Play slower')}
+                <PlayButton voice="them" line={b.line} label={`Play: ${b.line.en}`} />
+                {slow('them', b.line, 'Play slower')}
               </div>}
             </div>
           </div>
@@ -117,8 +120,8 @@ export function DialoguePlayer({ scenario, path, nodeId }: { scenario: Scenario;
               <p className="bubble-text"><Zh line={b.line} className="bubble-zh" /></p>
               {meaning && <p className="meaning">{b.line.en}</p>}
               {playYou && <div className="bubble-actions">
-                <PlayButton voice="you" zh={b.line.zh} label={`Play my reply: ${b.line.en}`} />
-                {slow('you', b.line.zh, 'Play my reply slower')}
+                <PlayButton voice="you" line={b.line} label={`Play my reply: ${b.line.en}`} />
+                {slow('you', b.line, 'Play my reply slower')}
               </div>}
             </div>
           </div>)}

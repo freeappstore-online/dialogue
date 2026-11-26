@@ -3,24 +3,33 @@
 Set KOKORO_MODELS to a directory containing kokoro-v1.0.onnx and voices-v1.0.bin
 (https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0).
 Install kokoro-onnx==0.6.1 and soundfile==0.14.0; ffmpeg must be on PATH.
-Set SHARD=i/n to run n workers in parallel. Existing files are kept; files no longer referenced are removed. Recordings require listening review.
+Writes whole lines to web/public/audio/zh and single words (for pauses between words, #13; silence trimmed) to
+web/public/audio/words. Set SHARD=i/n to run n workers in parallel. Existing files are kept; files no longer
+referenced are removed. Recordings require listening review.
 """
 import os, subprocess, sys, tempfile
 from pathlib import Path
 
-from audio_lines import VOICES, key, lines
+from audio_lines import VOICES, key, lines, words
 
-out = Path(__file__).resolve().parents[1] / 'web/public/audio/zh'
+public = Path(__file__).resolve().parents[1] / 'web/public/audio'
+# A word's own leading and trailing silence would add to the pause the learner chose.
+TRIM = 'silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse'
 
 
 def main():
-    wanted = {key(v, zh): (v, zh) for v, zh in lines()}
-    out.mkdir(parents=True, exist_ok=True)
-    for stale in out.glob('*.mp3'):
-        if stale.stem not in wanted: stale.unlink()
     shard, shards = map(int, os.environ.get('SHARD', '0/1').split('/'))
-    todo = {k: vz for i, (k, vz) in enumerate(sorted(wanted.items())) if i % shards == shard and not (out / f'{k}.mp3').exists()}
-    print(f'{len(wanted)} lines, {len(todo)} to generate', flush=True)
+    todo = []
+    for folder, items, trim in [('zh', lines(), False), ('words', words(), True)]:
+        out = public / folder
+        wanted = {key(v, zh): (v, zh) for v, zh in items}
+        out.mkdir(parents=True, exist_ok=True)
+        for stale in out.glob('*.mp3'):
+            if stale.stem not in wanted: stale.unlink()
+        mine = [(out / f'{k}.mp3', v, zh, trim) for i, (k, (v, zh)) in enumerate(sorted(wanted.items()))
+                if i % shards == shard and not (out / f'{k}.mp3').exists()]
+        print(f'{folder}: {len(wanted)} clips, {len(mine)} to generate', flush=True)
+        todo += mine
     if not todo: return
     import soundfile as sf
     from kokoro_onnx import Kokoro
@@ -31,13 +40,12 @@ def main():
     session = ort.InferenceSession(str(models / 'kokoro-v1.0.onnx'), opts, providers=['CPUExecutionProvider'])
     k = Kokoro.from_session(session, str(models / 'voices-v1.0.bin'))
     with tempfile.TemporaryDirectory() as tmp:
-        for name, (voice, zh) in todo.items():
+        for path, voice, zh, trim in todo:
             samples, sr = k.create(zh, voice=VOICES[voice], lang='cmn', speed=1.0)
             if not len(samples): sys.exit(f'Empty audio: {zh}')
-            wav = Path(tmp) / 'line.wav'
+            wav = Path(tmp) / 'clip.wav'
             sf.write(wav, samples, sr)
-            subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', wav, '-ac', '1', '-b:a', '48k', out / f'{name}.mp3'], check=True)
-            print(name, voice, zh, round(len(samples) / sr, 2), flush=True)
-
+            subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', wav, *(['-af', TRIM] if trim else []), '-ac', '1', '-b:a', '48k', path], check=True)
+            print(path.parent.name, path.stem, voice, zh, round(len(samples) / sr, 2), flush=True)
 
 main()

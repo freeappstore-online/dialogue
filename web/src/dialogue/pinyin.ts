@@ -13,8 +13,17 @@ const base = (ch: string) => ch.normalize('NFD')[0].toLowerCase().replace('ü', 
 
 export type Ruby = { text: string; rt?: string };
 
-/** Characters paired with their syllables, or null when the pinyin doesn't line up. */
-export function alignPinyin(zh: string, pinyin: string): Ruby[] | null {
+type Aligned = { ruby: Ruby[]; sizes: number[] } | null;
+const cache = new Map<string, Aligned>(); // the app has a few hundred lines, shown on every render
+
+/** Characters paired with their syllables, and how many characters each pinyin word covers (cached). */
+function align(zh: string, pinyin: string): Aligned {
+  const id = `${zh}\u0000${pinyin}`;
+  if (!cache.has(id)) cache.set(id, compute(zh, pinyin));
+  return cache.get(id)!;
+}
+
+function compute(zh: string, pinyin: string): Aligned {
   const chars = [...zh];
   const han = chars.filter(isHan);
   // Pinyin words: runs of letters (tone marks included); spaces, punctuation and apostrophes split them.
@@ -45,12 +54,31 @@ export function alignPinyin(zh: string, pinyin: string): Ruby[] | null {
     return result;
   };
 
+  const sizes: number[] = [];
   for (const word of words) {
     const got = split(word, 0, sylls.length);
     if (!got) return null;
     sylls.push(...got[0]);
+    sizes.push(got[0].length);
   }
   if (sylls.length !== han.length) return null;
   let n = 0;
-  return chars.map(ch => (isHan(ch) ? { text: ch, rt: sylls[n++].toLowerCase() } : { text: ch }));
+  return { ruby: chars.map(ch => (isHan(ch) ? { text: ch, rt: sylls[n++].toLowerCase() } : { text: ch })), sizes };
+}
+
+/** Characters paired with their syllables, or null when the pinyin doesn't line up. */
+export const alignPinyin = (zh: string, pinyin: string): Ruby[] | null => align(zh, pinyin)?.ruby ?? null;
+
+/**
+ * The line's words, as its pinyin groups them (欢迎光临 "Huānyíng guānglín" → 欢迎 · 光临), Han characters only.
+ * Null when the pinyin doesn't line up. Word audio is keyed by these (audio.ts, scripts/word_list.ts).
+ */
+export function pinyinWords(zh: string, pinyin: string): string[] | null {
+  const sizes = align(zh, pinyin)?.sizes;
+  if (!sizes) return null;
+  const han = [...zh].filter(isHan);
+  const out: string[] = [];
+  let at = 0;
+  for (const size of sizes) { out.push(han.slice(at, at + size).join('')); at += size; }
+  return out;
 }

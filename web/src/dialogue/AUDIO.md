@@ -13,6 +13,15 @@ not a pronunciation model. Professionally recorded or native-reviewed audio is s
 Regenerate after changing any Mandarin text: `scripts/generate-audio.py` (see its docstring). It adds
 missing files and removes unreferenced ones. `dialogue.test.ts` fails if any line has no file.
 
+## Word clips (pauses between words, #13)
+
+With *Pause between words* on, a line plays word by word with the chosen gap. Words are the groups the pinyin
+spells (`pinyinWords` in `pinyin.ts`: 欢迎光临 "Huānyíng guānglín" → 欢迎 · 光临). Each word is recorded once per
+voice at `web/public/audio/words/<audioKey(voice, word)>.mp3`, silence trimmed, by the same
+`scripts/generate-audio.py` (it lists words through `scripts/word_list.mts`, which runs the app's aligner;
+Node 22). They are not precached (#8); offline, or if a clip is missing, the whole line plays instead.
+`dialogue.test.ts` fails if any word has no clip. Speed applies to both.
+
 ## Community audio (dialogue#10)
 
 Contributors' devices can generate the same lines through FreeAppStore community generation

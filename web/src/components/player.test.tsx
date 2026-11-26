@@ -169,3 +169,45 @@ it('changing a setting in the sheet updates the conversation live', async () => 
   expect(host.querySelector('.bubble-row.current ruby')).toBeNull();
   expect(JSON.parse(localStorage.getItem('dialogue:display')!).pinyin).toBe('off');
 });
+
+it('speed and pauses between words follow the settings', async () => {
+  setDisplay({ speed: 0.8, pause: 600, autoplay: false });
+  const play = vi.mocked(HTMLMediaElement.prototype.play);
+  play.mockImplementation(function (this: HTMLMediaElement) {
+    const el = this;
+    queueMicrotask(() => el.dispatchEvent(new Event('ended')));
+    return Promise.resolve();
+  });
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  try {
+    const s = scenarioById('restaurant-arrival')!;
+    await render(<DialoguePlayer scenario={s} path={[]} nodeId="greet" />);
+    const srcs: string[] = [];
+    const rates: number[] = [];
+    play.mockImplementation(function (this: HTMLMediaElement) {
+      srcs.push(this.src); rates.push(this.playbackRate);
+      const el = this;
+      queueMicrotask(() => el.dispatchEvent(new Event('ended')));
+      return Promise.resolve();
+    });
+    await click(host.querySelector('.bubble-row.current [aria-label^="Play:"]')!);
+    await act(async () => { for (let i = 0; i < 6; i++) { await vi.advanceTimersByTimeAsync(600); } });
+    // 欢迎光临！请问几位？ → 欢迎 · 光临 · 请问 · 几 · 位, one clip each, 600 ms apart, at 0.8×
+    expect(srcs).toHaveLength(5);
+    expect(srcs.every(src => src.includes('/audio/words/'))).toBe(true);
+    expect(rates.every(r => r === 0.8)).toBe(true);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it('with pauses off, a line plays as one recording at the chosen speed', async () => {
+  setDisplay({ speed: 1.2, pause: 0, autoplay: false });
+  await play('restaurant-arrival');
+  const p = vi.mocked(HTMLMediaElement.prototype.play);
+  p.mockClear();
+  await click(host.querySelector('.bubble-row.current [aria-label^="Play:"]')!);
+  const el = p.mock.contexts[0] as HTMLMediaElement;
+  expect(el.src).toContain('/audio/zh/');
+  expect(el.playbackRate).toBe(1.2);
+});

@@ -24,6 +24,7 @@ export function Finder({ scenarioId, path = [], nodeId }: { scenarioId?: string;
   const [heard, setHeard] = useState<string[] | null>(null);
   const [open, setOpen] = useState<Entry | null>(null);
   const [listenError, setListenError] = useState('');
+  const [browsing, setBrowsing] = useState<Record<string, boolean>>({});
   const scenario = scenarioById(scenarioId);
   const matches = heard ? matchTranscripts(entries, heard, ctx) : null;
   const results = query.trim() ? search(entries, query, ctx).slice(0, 40) : null;
@@ -66,8 +67,9 @@ export function Finder({ scenarioId, path = [], nodeId }: { scenarioId?: string;
         </section>
         <section className="section">
           <h2 className="section-label">By conversation</h2>
-          <div className="list">{scenarios.map(s => <details key={s.id} className="list-group"><summary className="list-row"><span className="list-main"><strong>{s.icon} {s.title}</strong></span><Icon name="chevron" /></summary>
-            <ul className="list nested">{entries.filter(e => e.source?.scenarioId === s.id).map(e => <EntryRow key={e.key} entry={e} onOpen={setOpen} />)}</ul>
+          <div className="list">{scenarios.map(s => <details key={s.id} className="list-group" onToggle={e => { const shown = e.currentTarget.open; setBrowsing(b => ({ ...b, [s.id]: shown })); }}><summary className="list-row"><span className="list-main"><strong>{s.icon} {s.title}</strong></span><Icon name="chevron" /></summary>
+            {/* Rendered only while open: each row lays out pinyin over its characters. */}
+            {browsing[s.id] && <ul className="list nested">{entries.filter(e => e.source?.scenarioId === s.id).map(e => <EntryRow key={e.key} entry={e} onOpen={setOpen} />)}</ul>}
           </details>)}</div>
         </section>
       </>}
@@ -79,7 +81,7 @@ export function Finder({ scenarioId, path = [], nodeId }: { scenarioId?: string;
         <div className="detail-line">
           <p className="detail-text"><Zh line={open} className="detail-zh" /></p>
           <p className="meaning">{open.en}</p>
-          {playThem && <PlayButton voice="them" zh={open.zh} label={`Play: ${open.en}`} />}
+          {playThem && <PlayButton voice="them" line={open} label={`Play: ${open.en}`} />}
           {source && open.source && <a className="btn primary detail-action" href={href.play(source.id, pathTo(source, open.source.nodeId))}>Practise from here</a>}
         </div>
         <h3 className="section-label">Replies you can use</h3>

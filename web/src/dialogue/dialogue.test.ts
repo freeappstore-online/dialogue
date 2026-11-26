@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { audioPath } from './audio';
+import { audioPath, wordPath } from './audio';
+import { pinyinWords } from './pinyin';
 import { categories, phrases, repairs, scenarios } from './catalog';
 import { applyRepair, nextNode, pathTo, validateScenario, walk, type Scenario } from './model';
 import { parseRoute, href } from '../route';
@@ -75,6 +76,19 @@ describe('scenario catalog', () => {
     delete noOutcome.nodes[endId].outcome;
     expect(() => validateScenario(noOutcome)).toThrow(/outcome/);
     expect(() => nextNode(scenarios[0], scenarios[0].start, 'missing')).toThrow();
+  });
+
+  it('has a word clip for every word of every line (pauses between words)', () => {
+    const missing: string[] = [];
+    const want = (voice: 'them' | 'you', l: { zh: string; pinyin: string }) => {
+      for (const w of pinyinWords(l.zh, l.pinyin) ?? []) if (!existsSync(new URL(`../../public/${wordPath(voice, w)}`, import.meta.url))) missing.push(`${voice}:${w}`);
+    };
+    for (const s of scenarios) for (const n of Object.values(s.nodes)) {
+      want('them', n); n.variants?.forEach(v => want('them', v)); if (n.rephrase) want('them', n.rephrase); n.choices.forEach(c => want('you', c));
+    }
+    for (const r of repairs) { want('you', r); want('them', r.response); }
+    for (const p of phrases) { want('them', p); p.replies.forEach(r => want('you', r)); }
+    expect([...new Set(missing)]).toEqual([]);
   });
 
   it('has a prerecorded file for every line, reply, repair and phrase', () => {

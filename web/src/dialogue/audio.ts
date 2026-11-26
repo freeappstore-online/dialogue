@@ -71,16 +71,30 @@ export function stopAudio(): void {
   playing.done();
 }
 
+type Clip = { primary: string; fallback: string };
+
 /**
  * Play one line; resolves when it ends or is stopped. Only one line plays at a time.
  * Community audio that fails to load (offline, withdrawn) falls back to the bundled MP3.
  */
 export function playLine(voice: Voice, zh: string, rate = 1): Promise<void> {
+  const bundled = import.meta.env.BASE_URL + audioPath(voice, zh);
+  return playClips([{ primary: community.get(audioKey(voice, zh)) ?? bundled, fallback: bundled }], rate, 0);
+}
+
+export const wordPath = (voice: Voice, word: string) => `audio/words/${audioKey(voice, word)}.mp3`;
+
+/** Play a line word by word with `gapMs` of silence between words (#13); rejects if a word clip is missing. */
+export function playWords(voice: Voice, words: string[], rate = 1, gapMs = 0): Promise<void> {
+  return playClips(words.map(w => { const src = import.meta.env.BASE_URL + wordPath(voice, w); return { primary: src, fallback: src }; }), rate, gapMs);
+}
+
+function playClips(clips: Clip[], rate: number, gapMs: number): Promise<void> {
   stopAudio();
   const player = element();
-  const bundled = import.meta.env.BASE_URL + audioPath(voice, zh);
-  let src = community.get(audioKey(voice, zh)) ?? bundled;
   const abort = new AbortController();
+  let index = 0;
+  let src = '';
   return new Promise((resolve, reject) => {
     const entry = { abort, done: () => resolve() };
     current = entry;
@@ -96,12 +110,17 @@ export function playLine(voice: Voice, zh: string, rate = 1): Promise<void> {
     // The error event and play()'s rejection both report a failed source: act once per source
     const failed = (from: string, e: unknown) => {
       if (current !== entry || from !== src) return;
-      if (src === bundled) return finish(() => reject(e));
-      start(bundled);
+      if (src === clips[index].fallback) return finish(() => reject(e));
+      start(clips[index].fallback);
     };
-    // Listeners end with this line, so the shared element never reports to an old one
-    player.addEventListener('ended', () => finish(resolve), { signal: abort.signal });
+    const next = () => {
+      if (++index >= clips.length) return finish(resolve);
+      const timer = window.setTimeout(() => { if (current === entry) start(clips[index].primary); }, gapMs);
+      abort.signal.addEventListener('abort', () => window.clearTimeout(timer));
+    };
+    // Listeners end with this playback, so the shared element never reports to an old one
+    player.addEventListener('ended', () => next(), { signal: abort.signal });
     player.addEventListener('error', () => failed(src, new Error('Audio unavailable')), { signal: abort.signal });
-    start(src);
+    start(clips[0].primary);
   });
 }

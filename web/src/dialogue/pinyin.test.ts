@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { phrases, repairs, scenarios } from './catalog';
 import type { Line } from './model';
-import { alignPinyin } from './pinyin';
+import { alignPinyin, pinyinWords } from './pinyin';
 
 const allLines = (): Line[] => [
   ...scenarios.flatMap(s => Object.values(s.nodes).flatMap(n => [n, ...n.choices, ...(n.variants ?? []), ...(n.rephrase ? [n.rephrase] : [])])),
@@ -32,5 +32,17 @@ describe('alignPinyin', () => {
   it('aligns every line in the app', () => {
     const failed = allLines().filter(l => !alignPinyin(l.zh, l.pinyin)).map(l => `${l.zh} | ${l.pinyin}`);
     expect(failed).toEqual([]);
+  });
+});
+
+describe('pinyinWords', () => {
+  it('groups characters into the words the pinyin spells', () => {
+    expect(pinyinWords('欢迎光临！请问几位？', 'Huānyíng guānglín! Qǐngwèn jǐ wèi?')).toEqual(['欢迎', '光临', '请问', '几', '位']);
+    expect(pinyinWords('你要去哪儿？', 'Nǐ yào qù nǎr?')).toEqual(['你', '要', '去', '哪儿']);
+    expect(pinyinWords('你好', 'Nǐ hǎo ma')).toBeNull();
+  });
+
+  it('covers every line, character for character', () => {
+    for (const l of allLines()) expect(pinyinWords(l.zh, l.pinyin)!.join('')).toBe([...l.zh].filter(c => /\p{Script=Han}/u.test(c)).join(''));
   });
 });
