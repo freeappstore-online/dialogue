@@ -21,8 +21,14 @@ Contributors' devices can generate the same lines through FreeAppStore community
 sets, `zf_xiaobei` for the other speaker and `zm_yunxi` for learner replies (Kokoro `v1.0`,
 `language: zh`, `audio/mp4`). A job's key is the line's audio key and its input the Mandarin text
 exactly. The first real run creates the sets, commits their ids to `community-sets.json` and redeploys.
-Run it with `dry_run` first; re-running only adds jobs for new or changed lines. The lines are listed
+It also runs by itself on every push to `main` that changes the dialogue text (#11): it reads each
+set's jobs and requests only lines that have none yet, reporting how many are accepted, waiting and newly
+requested, and warning about jobs for text the app no longer uses (the API cannot delete jobs). A manual
+`dry_run` reports what would be requested without creating anything. The lines are listed
 once, in `scripts/audio_lines.py`, for both scripts.
+
+Mandarin is generated today only by the Android and iOS companions; the browser runner speaks English
+only. The model request for Kokoro v1.0's Mandarin voices in the browser is freeappstore-online/platform#818.
 
 The platform verifies every upload with Whisper before publishing it. `audio.ts` reads both sets'
 public manifests once per visit and plays an accepted recording in place of the bundled MP3. Until the
