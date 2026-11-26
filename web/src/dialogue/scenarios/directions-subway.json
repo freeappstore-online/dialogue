@@ -1,0 +1,158 @@
+{
+  "id": "directions-subway",
+  "version": "1.0.0",
+  "category": "directions",
+  "title": "In the subway: lines, transfers and exits",
+  "summary": "Ask station staff which line to take, where to change, and which exit to use.",
+  "start": "where",
+  "nodes": {
+    "where": {
+      "speaker": "Station staff",
+      "zh": "你要去哪儿？", "pinyin": "Nǐ yào qù nǎr?", "en": "Where are you going?",
+      "variants": [
+        { "zh": "去哪儿？", "pinyin": "Qù nǎr?", "en": "Going where?" },
+        { "zh": "你到哪个站？", "pinyin": "Nǐ dào nǎge zhàn?", "en": "Which station are you going to?" }
+      ],
+      "rephrase": { "zh": "你想坐到哪一站？", "pinyin": "Nǐ xiǎng zuò dào nǎ yí zhàn?", "en": "Which stop do you want to ride to?" },
+      "choices": [
+        { "id": "station", "zh": "去火车站。", "pinyin": "Qù huǒchē zhàn.", "en": "To the train station", "next": "train-line" },
+        { "id": "exit", "zh": "我在找出口。", "pinyin": "Wǒ zài zhǎo chūkǒu.", "en": "I'm looking for the exit", "next": "exit" },
+        { "id": "line", "zh": "我不知道该坐几号线。", "pinyin": "Wǒ bù zhīdào gāi zuò jǐ hào xiàn.", "en": "I'm not sure which line to take", "next": "line-q" }
+      ]
+    },
+    "train-line": {
+      "speaker": "Station staff",
+      "zh": "去火车站坐一号线，在对面上车，三站就到。", "pinyin": "Qù huǒchē zhàn zuò yī hào xiàn, zài duìmiàn shàng chē, sān zhàn jiù dào.", "en": "For the train station take Line 1 from the opposite platform. It's three stops.",
+      "rephrase": { "zh": "你要坐一号线，在另一边上车，坐三站。", "pinyin": "Nǐ yào zuò yī hào xiàn, zài lìng yìbiān shàng chē, zuò sān zhàn.", "en": "Take Line 1, board on the other side, and ride three stops." },
+      "choices": [
+        { "id": "ticket", "zh": "在哪儿买票？", "pinyin": "Zài nǎr mǎi piào?", "en": "Where do I buy a ticket?", "next": "ticket" },
+        { "id": "opposite", "zh": "对面？要过去吗？", "pinyin": "Duìmiàn? Yào guòqu ma?", "en": "The opposite side? Do I need to cross over?", "next": "opposite" },
+        { "id": "thanks", "zh": "一号线，三站。明白了，谢谢！", "pinyin": "Yī hào xiàn, sān zhàn. Míngbai le, xièxie!", "en": "Line 1, three stops. Got it, thanks!", "next": "ride-end" }
+      ]
+    },
+    "ticket": {
+      "speaker": "Station staff",
+      "zh": "那边有自动售票机，也可以直接扫码进站。", "pinyin": "Nàbian yǒu zìdòng shòupiàojī, yě kěyǐ zhíjiē sǎo mǎ jìn zhàn.", "en": "There are ticket machines over there, or you can scan a code to go straight in.",
+      "choices": [
+        { "id": "buy", "zh": "好，我去买票。", "pinyin": "Hǎo, wǒ qù mǎi piào.", "en": "Okay, I'll go buy a ticket", "next": "ride-end" },
+        { "id": "help", "zh": "你能教我怎么用吗？", "pinyin": "Nǐ néng jiāo wǒ zěnme yòng ma?", "en": "Could you show me how to use it?", "next": "machine-end" }
+      ]
+    },
+    "opposite": {
+      "speaker": "Station staff",
+      "zh": "对，从这个楼梯下去，走到另一边的站台。", "pinyin": "Duì, cóng zhège lóutī xiàqu, zǒu dào lìng yìbiān de zhàntái.", "en": "Yes. Go down these stairs and walk to the platform on the other side.",
+      "choices": [
+        { "id": "ok", "zh": "好的，谢谢！", "pinyin": "Hǎo de, xièxie!", "en": "Okay, thanks!", "next": "ride-end" }
+      ]
+    },
+    "line-q": {
+      "speaker": "Station staff",
+      "zh": "你要去哪个站？", "pinyin": "Nǐ yào qù nǎge zhàn?", "en": "Which station are you going to?",
+      "choices": [
+        { "id": "museum", "zh": "博物馆站。", "pinyin": "Bówùguǎn zhàn.", "en": "Museum Station", "next": "transfer" },
+        { "id": "airport", "zh": "去机场。", "pinyin": "Qù jīchǎng.", "en": "To the airport", "next": "airport" },
+        { "id": "show", "zh": "就是这个站，你看。", "pinyin": "Jiù shì zhège zhàn, nǐ kàn.", "en": "This station — have a look (showing your phone)", "next": "transfer" }
+      ]
+    },
+    "transfer": {
+      "speaker": "Station staff",
+      "zh": "先坐二号线，到人民广场换八号线。", "pinyin": "Xiān zuò èr hào xiàn, dào Rénmín Guǎngchǎng huàn bā hào xiàn.", "en": "Take Line 2 first, then change to Line 8 at People's Square.",
+      "variants": [
+        { "zh": "要换乘。", "pinyin": "Yào huànchéng.", "en": "You need to transfer." },
+        { "zh": "中间换一次车。", "pinyin": "Zhōngjiān huàn yí cì chē.", "en": "You change trains once on the way." }
+      ],
+      "rephrase": { "zh": "你要换一次车：二号线坐到人民广场，然后坐八号线。", "pinyin": "Nǐ yào huàn yí cì chē: èr hào xiàn zuò dào Rénmín Guǎngchǎng, ránhòu zuò bā hào xiàn.", "en": "You change once: Line 2 to People's Square, then Line 8." },
+      "choices": [
+        { "id": "confirm", "zh": "在人民广场换八号线，对吗？", "pinyin": "Zài Rénmín Guǎngchǎng huàn bā hào xiàn, duì ma?", "en": "Change to Line 8 at People's Square, right?", "next": "ride-end" },
+        { "id": "stops", "zh": "一共几站？", "pinyin": "Yígòng jǐ zhàn?", "en": "How many stops in total?", "next": "stops" },
+        { "id": "misheard", "zh": "是八号线还是四号线？", "pinyin": "Shì bā hào xiàn háishi sì hào xiàn?", "en": "Line 8 or Line 4?", "next": "misheard" }
+      ]
+    },
+    "stops": {
+      "speaker": "Station staff",
+      "zh": "一共五站，大概十五分钟。", "pinyin": "Yígòng wǔ zhàn, dàgài shíwǔ fēnzhōng.", "en": "Five stops in all — about fifteen minutes.",
+      "choices": [
+        { "id": "thanks", "zh": "好的，谢谢！", "pinyin": "Hǎo de, xièxie!", "en": "Okay, thanks!", "next": "ride-end" }
+      ]
+    },
+    "misheard": {
+      "speaker": "Station staff",
+      "zh": "八号线。八，八。", "pinyin": "Bā hào xiàn. Bā, bā.", "en": "Line eight. Eight — eight.",
+      "choices": [
+        { "id": "ok", "zh": "明白了，八号线。谢谢！", "pinyin": "Míngbai le, bā hào xiàn. Xièxie!", "en": "Got it, Line 8. Thanks!", "next": "ride-end" }
+      ]
+    },
+    "airport": {
+      "speaker": "Station staff",
+      "zh": "去机场坐二号线，一直坐到终点站。", "pinyin": "Qù jīchǎng zuò èr hào xiàn, yìzhí zuò dào zhōngdiǎn zhàn.", "en": "For the airport take Line 2 all the way to the last stop.",
+      "choices": [
+        { "id": "time", "zh": "要多长时间？", "pinyin": "Yào duō cháng shíjiān?", "en": "How long does it take?", "next": "airport-time" },
+        { "id": "thanks", "zh": "好的，谢谢！", "pinyin": "Hǎo de, xièxie!", "en": "Okay, thanks!", "next": "ride-end" }
+      ]
+    },
+    "airport-time": {
+      "speaker": "Station staff",
+      "zh": "差不多一个小时。", "pinyin": "Chàbuduō yí ge xiǎoshí.", "en": "About an hour.",
+      "choices": [
+        { "id": "thanks", "zh": "好的，谢谢！", "pinyin": "Hǎo de, xièxie!", "en": "Okay, thanks!", "next": "ride-end" }
+      ]
+    },
+    "exit": {
+      "speaker": "Station staff",
+      "zh": "你要哪个出口？这里有八个出口。", "pinyin": "Nǐ yào nǎge chūkǒu? Zhèlǐ yǒu bā ge chūkǒu.", "en": "Which exit do you want? There are eight here.",
+      "variants": [
+        { "zh": "几号口？", "pinyin": "Jǐ hào kǒu?", "en": "Which exit number?" }
+      ],
+      "rephrase": { "zh": "你要从几号出口出去？", "pinyin": "Nǐ yào cóng jǐ hào chūkǒu chūqu?", "en": "Which numbered exit do you want to leave by?" },
+      "choices": [
+        { "id": "four", "zh": "我要四号口。", "pinyin": "Wǒ yào sì hào kǒu.", "en": "Exit 4", "next": "exit-4-end" },
+        { "id": "park", "zh": "我要去人民公园，哪个出口近？", "pinyin": "Wǒ yào qù Rénmín Gōngyuán, nǎge chūkǒu jìn?", "en": "I'm going to People's Park — which exit is closest?", "next": "exit-park-end" },
+        { "id": "address", "zh": "我也不知道，我要去这个地址。", "pinyin": "Wǒ yě bù zhīdào, wǒ yào qù zhège dìzhǐ.", "en": "I don't know — I'm going to this address", "next": "address" }
+      ]
+    },
+    "address": {
+      "speaker": "Station staff",
+      "zh": "我看看……这个地址走二号口出去，然后左转。", "pinyin": "Wǒ kànkan... zhège dìzhǐ zǒu èr hào kǒu chūqu, ránhòu zuǒ zhuǎn.", "en": "Let me see... for this address, leave by Exit 2 and turn left.",
+      "choices": [
+        { "id": "confirm", "zh": "二号口，出去左转。谢谢！", "pinyin": "Èr hào kǒu, chūqu zuǒ zhuǎn. Xièxie!", "en": "Exit 2, then left. Thanks!", "next": "welcome-end" },
+        { "id": "far", "zh": "出去以后还远吗？", "pinyin": "Chūqu yǐhòu hái yuǎn ma?", "en": "Is it still far after I exit?", "next": "address-far-end" }
+      ]
+    },
+    "ride-end": {
+      "speaker": "Station staff",
+      "zh": "不客气，路上小心！", "pinyin": "Bú kèqi, lùshang xiǎoxīn!", "en": "You're welcome — take care on the way!",
+      "outcome": "You know which train to take.",
+      "choices": []
+    },
+    "machine-end": {
+      "speaker": "Station staff",
+      "zh": "可以。先选英文，再选站名，最后付钱就行。", "pinyin": "Kěyǐ. Xiān xuǎn Yīngwén, zài xuǎn zhànmíng, zuìhòu fù qián jiù xíng.", "en": "Sure. Choose English first, then the station, then pay.",
+      "outcome": "They walk you through the ticket machine.",
+      "choices": []
+    },
+    "exit-4-end": {
+      "speaker": "Station staff",
+      "zh": "四号口往那边走，看到楼梯上去就是。", "pinyin": "Sì hào kǒu wǎng nàbian zǒu, kàndào lóutī shàngqu jiù shì.", "en": "Exit 4 is that way — go up when you see the stairs.",
+      "outcome": "You head for Exit 4.",
+      "choices": []
+    },
+    "exit-park-end": {
+      "speaker": "Station staff",
+      "zh": "人民公园走十一号口最近，跟着指示牌走。", "pinyin": "Rénmín Gōngyuán zǒu shíyī hào kǒu zuì jìn, gēnzhe zhǐshìpái zǒu.", "en": "Exit 11 is closest to People's Park. Follow the signs.",
+      "outcome": "You follow the signs to Exit 11.",
+      "choices": []
+    },
+    "welcome-end": {
+      "speaker": "Station staff",
+      "zh": "不客气！", "pinyin": "Bú kèqi!", "en": "You're welcome!",
+      "outcome": "You leave by Exit 2 and turn left.",
+      "choices": []
+    },
+    "address-far-end": {
+      "speaker": "Station staff",
+      "zh": "不远，出去走五分钟就到。", "pinyin": "Bù yuǎn, chūqu zǒu wǔ fēnzhōng jiù dào.", "en": "Not far — a five-minute walk once you're out.",
+      "outcome": "Your destination is five minutes from Exit 2.",
+      "choices": []
+    }
+  }
+}

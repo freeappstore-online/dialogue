@@ -1,0 +1,18 @@
+[
+  { "id": "excuse-me", "zh": "不好意思。", "pinyin": "Bù hǎoyìsi.", "en": "Excuse me", "action": "wait",
+    "response": { "zh": "嗯？您说。", "pinyin": "Ńg? Nín shuō.", "en": "Yes? Go ahead." } },
+  { "id": "not-sure", "zh": "我不太确定。", "pinyin": "Wǒ bú tài quèdìng.", "en": "I'm not sure", "action": "wait",
+    "response": { "zh": "没关系，慢慢来。", "pinyin": "Méi guānxi, mànmān lái.", "en": "No problem, take your time." } },
+  { "id": "didnt-catch", "zh": "我没听清楚。", "pinyin": "Wǒ méi tīng qīngchu.", "en": "I didn't catch that", "action": "repeat",
+    "response": { "zh": "好，我再说一遍。", "pinyin": "Hǎo, wǒ zài shuō yí biàn.", "en": "Okay, I'll say it again." } },
+  { "id": "dont-understand", "zh": "我听不懂。", "pinyin": "Wǒ tīng bu dǒng.", "en": "I don't understand", "action": "rephrase",
+    "response": { "zh": "我换个说法。", "pinyin": "Wǒ huàn ge shuōfǎ.", "en": "Let me put it another way." } },
+  { "id": "repeat", "zh": "能再说一遍吗？", "pinyin": "Néng zài shuō yí biàn ma?", "en": "Could you repeat that?", "action": "repeat",
+    "response": { "zh": "好，我再说一遍。", "pinyin": "Hǎo, wǒ zài shuō yí biàn.", "en": "Okay, I'll say it again." } },
+  { "id": "slower", "zh": "能说慢一点吗？", "pinyin": "Néng shuō màn yìdiǎn ma?", "en": "Could you speak more slowly?", "action": "slower",
+    "response": { "zh": "好的，我说慢一点。", "pinyin": "Hǎo de, wǒ shuō màn yìdiǎn.", "en": "Sure, I'll speak more slowly." } },
+  { "id": "different", "zh": "能换个说法吗？", "pinyin": "Néng huàn ge shuōfǎ ma?", "en": "Could you say it a different way?", "action": "rephrase",
+    "response": { "zh": "我换个说法。", "pinyin": "Wǒ huàn ge shuōfǎ.", "en": "Let me put it another way." } },
+  { "id": "english", "zh": "能用英语说吗？", "pinyin": "Néng yòng Yīngyǔ shuō ma?", "en": "Could you say that in English?", "action": "english",
+    "response": { "zh": "不好意思，我英语不太好。", "pinyin": "Bù hǎoyìsi, wǒ Yīngyǔ bú tài hǎo.", "en": "Sorry, my English isn't very good." } }
+]

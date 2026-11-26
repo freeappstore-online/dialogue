@@ -1,0 +1,117 @@
+{
+  "id": "restaurant-arrival",
+  "version": "2.0.0",
+  "category": "restaurant",
+  "title": "Arriving and getting a table",
+  "summary": "Say how many people, find a reservation, choose a seat or wait when it is full.",
+  "start": "greet",
+  "nodes": {
+    "greet": {
+      "speaker": "Host",
+      "zh": "欢迎光临！请问几位？", "pinyin": "Huānyíng guānglín! Qǐngwèn jǐ wèi?", "en": "Welcome! How many people?",
+      "variants": [
+        { "zh": "您好，几位？", "pinyin": "Nín hǎo, jǐ wèi?", "en": "Hello, how many?" },
+        { "zh": "几位用餐？", "pinyin": "Jǐ wèi yòngcān?", "en": "How many for dinner?" }
+      ],
+      "rephrase": { "zh": "请问你们一共几个人？", "pinyin": "Qǐngwèn nǐmen yígòng jǐ ge rén?", "en": "How many of you are there in total?" },
+      "choices": [
+        { "id": "one", "zh": "就我一个人。", "pinyin": "Jiù wǒ yí ge rén.", "en": "Just me (one person)", "next": "seat-where" },
+        { "id": "two", "zh": "我们两个人。", "pinyin": "Wǒmen liǎng ge rén.", "en": "Two of us", "next": "seat-where" },
+        { "id": "booking", "zh": "我订了位，姓王。", "pinyin": "Wǒ dìngle wèi, xìng Wáng.", "en": "I have a reservation, under Wang", "next": "booking-check" },
+        { "id": "four", "zh": "四个人，还有两个朋友在路上。", "pinyin": "Sì ge rén, hái yǒu liǎng ge péngyou zài lùshang.", "en": "Four — two friends are on the way", "next": "full" }
+      ]
+    },
+    "seat-where": {
+      "speaker": "Host",
+      "zh": "好的，您想坐里面还是靠窗？", "pinyin": "Hǎo de, nín xiǎng zuò lǐmiàn háishi kào chuāng?", "en": "Okay. Would you like to sit inside or by the window?",
+      "variants": [
+        { "zh": "坐这边可以吗？", "pinyin": "Zuò zhèbiān kěyǐ ma?", "en": "Is sitting over here okay?" }
+      ],
+      "rephrase": { "zh": "您喜欢坐窗边，还是里边？", "pinyin": "Nín xǐhuan zuò chuāngbiān, háishi lǐbian?", "en": "Do you prefer the window or further inside?" },
+      "choices": [
+        { "id": "window", "zh": "靠窗吧。", "pinyin": "Kào chuāng ba.", "en": "By the window, please", "next": "window-end" },
+        { "id": "any", "zh": "都可以。", "pinyin": "Dōu kěyǐ.", "en": "Either is fine", "next": "inside-end" },
+        { "id": "quiet", "zh": "有安静一点的位子吗？", "pinyin": "Yǒu ānjìng yìdiǎn de wèizi ma?", "en": "Do you have a quieter seat?", "next": "quiet-end" }
+      ]
+    },
+    "booking-check": {
+      "speaker": "Host",
+      "zh": "好的，请问您的手机号后四位是多少？", "pinyin": "Hǎo de, qǐngwèn nín de shǒujīhào hòu sì wèi shì duōshao?", "en": "Okay. What are the last four digits of your phone number?",
+      "rephrase": { "zh": "您订位时留的电话，最后四个数字是什么？", "pinyin": "Nín dìng wèi shí liú de diànhuà, zuìhòu sì ge shùzì shì shénme?", "en": "The phone number you left when booking — what are its last four digits?" },
+      "choices": [
+        { "id": "digits", "zh": "是八八六二。", "pinyin": "Shì bā bā liù èr.", "en": "It's 8862", "next": "booking-end" },
+        { "id": "forgot", "zh": "我不记得了，可以用名字查吗？", "pinyin": "Wǒ bú jìde le, kěyǐ yòng míngzi chá ma?", "en": "I don't remember — can you look it up by name?", "next": "booking-name" }
+      ]
+    },
+    "booking-name": {
+      "speaker": "Host",
+      "zh": "可以，您的全名是？", "pinyin": "Kěyǐ, nín de quánmíng shì?", "en": "Sure. What's your full name?",
+      "choices": [
+        { "id": "name", "zh": "王小明。", "pinyin": "Wáng Xiǎomíng.", "en": "Wang Xiaoming", "next": "booking-end" },
+        { "id": "write", "zh": "我写给您看吧。", "pinyin": "Wǒ xiě gěi nín kàn ba.", "en": "Let me write it down for you", "next": "booking-end" }
+      ]
+    },
+    "booking-end": {
+      "speaker": "Host",
+      "zh": "找到了，七点，两位。这边请。", "pinyin": "Zhǎodào le, qī diǎn, liǎng wèi. Zhè biān qǐng.", "en": "Found it — seven o'clock, two people. This way, please.",
+      "outcome": "Your reservation is found and you are shown to your table.",
+      "choices": []
+    },
+    "full": {
+      "speaker": "Host",
+      "zh": "不好意思，现在没有四人桌，要等大概二十分钟。", "pinyin": "Bù hǎoyìsi, xiànzài méiyǒu sì rén zhuō, yào děng dàgài èrshí fēnzhōng.", "en": "Sorry, there's no table for four right now. It's about a twenty-minute wait.",
+      "variants": [
+        { "zh": "现在满了，需要排队。", "pinyin": "Xiànzài mǎn le, xūyào páiduì.", "en": "We're full right now; you'll need to queue." }
+      ],
+      "rephrase": { "zh": "四个人的桌子都有人了，大约要等二十分钟。", "pinyin": "Sì ge rén de zhuōzi dōu yǒu rén le, dàyuē yào děng èrshí fēnzhōng.", "en": "All the tables for four are taken; it's roughly a twenty-minute wait." },
+      "choices": [
+        { "id": "wait", "zh": "没关系，我们等一下。", "pinyin": "Méi guānxi, wǒmen děng yíxià.", "en": "That's fine, we'll wait", "next": "wait-end" },
+        { "id": "number", "zh": "可以先取个号吗？", "pinyin": "Kěyǐ xiān qǔ ge hào ma?", "en": "Can we take a queue number first?", "next": "number-end" },
+        { "id": "split", "zh": "两张两人桌也行吗？", "pinyin": "Liǎng zhāng liǎng rén zhuō yě xíng ma?", "en": "Would two tables for two work?", "next": "split-end" },
+        { "id": "leave", "zh": "那算了，谢谢。", "pinyin": "Nà suàn le, xièxie.", "en": "Never mind then, thanks", "next": "leave-end" }
+      ]
+    },
+    "window-end": {
+      "speaker": "Host",
+      "zh": "好的，这边请，窗边的位子。菜单在这儿。", "pinyin": "Hǎo de, zhè biān qǐng, chuāngbiān de wèizi. Càidān zài zhèr.", "en": "This way — a window seat. Here's the menu.",
+      "outcome": "You are seated by the window with a menu.",
+      "choices": []
+    },
+    "inside-end": {
+      "speaker": "Host",
+      "zh": "好的，请跟我来。请坐，这是菜单。", "pinyin": "Hǎo de, qǐng gēn wǒ lái. Qǐng zuò, zhè shì càidān.", "en": "Please follow me. Have a seat — here's the menu.",
+      "outcome": "You are seated with a menu.",
+      "choices": []
+    },
+    "quiet-end": {
+      "speaker": "Host",
+      "zh": "有的，里面那张桌子比较安静。请坐。", "pinyin": "Yǒu de, lǐmiàn nà zhāng zhuōzi bǐjiào ānjìng. Qǐng zuò.", "en": "Yes, that table further in is quieter. Have a seat.",
+      "outcome": "You get a quiet table further inside.",
+      "choices": []
+    },
+    "wait-end": {
+      "speaker": "Host",
+      "zh": "好的，请在门口坐一下，有位子我叫您。", "pinyin": "Hǎo de, qǐng zài ménkǒu zuò yíxià, yǒu wèizi wǒ jiào nín.", "en": "Okay, please sit by the door. I'll call you when a table is free.",
+      "outcome": "You wait by the door for a table.",
+      "choices": []
+    },
+    "number-end": {
+      "speaker": "Host",
+      "zh": "这是您的号，三十二号。到了我们会叫号。", "pinyin": "Zhè shì nín de hào, sānshí'èr hào. Dàole wǒmen huì jiào hào.", "en": "Here's your number: 32. We'll call it when it's your turn.",
+      "outcome": "You take queue number 32.",
+      "choices": []
+    },
+    "split-end": {
+      "speaker": "Host",
+      "zh": "可以的，这两张挨着，我帮你们拼一下。", "pinyin": "Kěyǐ de, zhè liǎng zhāng āizhe, wǒ bāng nǐmen pīn yíxià.", "en": "Sure — these two are side by side. I'll push them together for you.",
+      "outcome": "Two small tables are pushed together for your group.",
+      "choices": []
+    },
+    "leave-end": {
+      "speaker": "Host",
+      "zh": "好的，欢迎下次光临。", "pinyin": "Hǎo de, huānyíng xià cì guānglín.", "en": "Okay. Please come again.",
+      "outcome": "You decide not to wait and leave politely.",
+      "choices": []
+    }
+  }
+}

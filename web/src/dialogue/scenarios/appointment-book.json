@@ -1,0 +1,194 @@
+{
+  "id": "appointment-book",
+  "version": "1.0.0",
+  "category": "appointments",
+  "title": "Booking a clinic appointment",
+  "summary": "Pick a day and time, handle a fully booked slot, give your details and confirm.",
+  "start": "hello",
+  "nodes": {
+    "hello": {
+      "speaker": "Receptionist",
+      "zh": "您好，请问有什么可以帮您？", "pinyin": "Nín hǎo, qǐngwèn yǒu shénme kěyǐ bāng nín?", "en": "Hello, how can I help you?",
+      "variants": [
+        { "zh": "您好，请讲。", "pinyin": "Nín hǎo, qǐng jiǎng.", "en": "Hello, go ahead." },
+        { "zh": "喂，您好！", "pinyin": "Wéi, nín hǎo!", "en": "Hello? (on the phone)" }
+      ],
+      "rephrase": { "zh": "您需要什么帮助？", "pinyin": "Nín xūyào shénme bāngzhù?", "en": "What do you need help with?" },
+      "choices": [
+        { "id": "book", "zh": "我想预约看医生。", "pinyin": "Wǒ xiǎng yùyuē kàn yīshēng.", "en": "I'd like to book an appointment with a doctor", "next": "when" },
+        { "id": "today", "zh": "今天还能看吗？", "pinyin": "Jīntiān hái néng kàn ma?", "en": "Can I still be seen today?", "next": "today" },
+        { "id": "price", "zh": "看一次多少钱？", "pinyin": "Kàn yí cì duōshao qián?", "en": "How much is a visit?", "next": "price" }
+      ]
+    },
+    "when": {
+      "speaker": "Receptionist",
+      "zh": "好的。你想约几点？", "pinyin": "Hǎo de. Nǐ xiǎng yuē jǐ diǎn?", "en": "Okay. What time would you like?",
+      "variants": [
+        { "zh": "什么时候方便？", "pinyin": "Shénme shíhou fāngbiàn?", "en": "When suits you?" },
+        { "zh": "约哪天？", "pinyin": "Yuē nǎ tiān?", "en": "Which day?" }
+      ],
+      "rephrase": { "zh": "您想哪一天、什么时间来？", "pinyin": "Nín xiǎng nǎ yì tiān, shénme shíjiān lái?", "en": "Which day and what time would you like to come?" },
+      "choices": [
+        { "id": "morning", "zh": "明天上午。", "pinyin": "Míngtiān shàngwǔ.", "en": "Tomorrow morning", "next": "morning-full" },
+        { "id": "after-three", "zh": "三点以后都可以。", "pinyin": "Sān diǎn yǐhòu dōu kěyǐ.", "en": "Any time after three", "next": "after-three" },
+        { "id": "available", "zh": "有哪些时间可以约？", "pinyin": "Yǒu nǎxiē shíjiān kěyǐ yuē?", "en": "What times are available?", "next": "slots" }
+      ]
+    },
+    "morning-full": {
+      "speaker": "Receptionist",
+      "zh": "不好意思，明天上午已经约满了。下午两点可以吗？", "pinyin": "Bù hǎoyìsi, míngtiān shàngwǔ yǐjīng yuē mǎn le. Xiàwǔ liǎng diǎn kěyǐ ma?", "en": "Sorry, tomorrow morning is fully booked. Would 2 p.m. work?",
+      "variants": [
+        { "zh": "上午没有了。", "pinyin": "Shàngwǔ méiyǒu le.", "en": "There's nothing left in the morning." },
+        { "zh": "那个时间有人了。", "pinyin": "Nàge shíjiān yǒu rén le.", "en": "That time is taken." }
+      ],
+      "rephrase": { "zh": "明天上午的号都没有了，只有下午两点还有空。", "pinyin": "Míngtiān shàngwǔ de hào dōu méiyǒu le, zhǐyǒu xiàwǔ liǎng diǎn hái yǒu kòng.", "en": "Tomorrow morning is all gone; only 2 p.m. is still free." },
+      "choices": [
+        { "id": "two", "zh": "两点可以。", "pinyin": "Liǎng diǎn kěyǐ.", "en": "Two is fine", "next": "details" },
+        { "id": "day-after", "zh": "后天上午呢？", "pinyin": "Hòutiān shàngwǔ ne?", "en": "How about the morning after?", "next": "day-after" },
+        { "id": "waitlist", "zh": "如果有人取消，可以告诉我吗？", "pinyin": "Rúguǒ yǒu rén qǔxiāo, kěyǐ gàosu wǒ ma?", "en": "If someone cancels, could you let me know?", "next": "waitlist" }
+      ]
+    },
+    "day-after": {
+      "speaker": "Receptionist",
+      "zh": "后天上午十点有空。", "pinyin": "Hòutiān shàngwǔ shí diǎn yǒu kòng.", "en": "The day after tomorrow, 10 a.m. is free.",
+      "choices": [
+        { "id": "ten", "zh": "好，就十点。", "pinyin": "Hǎo, jiù shí diǎn.", "en": "Okay, ten it is", "next": "details" },
+        { "id": "two", "zh": "那还是明天两点吧。", "pinyin": "Nà háishi míngtiān liǎng diǎn ba.", "en": "Then tomorrow at two after all", "next": "details" }
+      ]
+    },
+    "waitlist": {
+      "speaker": "Receptionist",
+      "zh": "可以，我把您放在候补名单上，有空位给您打电话。", "pinyin": "Kěyǐ, wǒ bǎ nín fàng zài hòubǔ míngdān shang, yǒu kòngwèi gěi nín dǎ diànhuà.", "en": "Sure. I'll put you on the waiting list and call you if a slot opens.",
+      "choices": [
+        { "id": "two-too", "zh": "好的，那先帮我约两点。", "pinyin": "Hǎo de, nà xiān bāng wǒ yuē liǎng diǎn.", "en": "Okay — book me in for two for now", "next": "details" },
+        { "id": "wait", "zh": "好，那我等您电话。", "pinyin": "Hǎo, nà wǒ děng nín diànhuà.", "en": "Okay, I'll wait for your call", "next": "waitlist-end" }
+      ]
+    },
+    "after-three": {
+      "speaker": "Receptionist",
+      "zh": "三点以后……四点半可以吗？", "pinyin": "Sān diǎn yǐhòu... sì diǎn bàn kěyǐ ma?", "en": "After three... would 4:30 work?",
+      "choices": [
+        { "id": "ok", "zh": "四点半可以。", "pinyin": "Sì diǎn bàn kěyǐ.", "en": "4:30 is fine", "next": "details" },
+        { "id": "later", "zh": "再晚一点有吗？", "pinyin": "Zài wǎn yìdiǎn yǒu ma?", "en": "Anything a bit later?", "next": "late-slot" }
+      ]
+    },
+    "late-slot": {
+      "speaker": "Receptionist",
+      "zh": "最晚是五点半。", "pinyin": "Zuì wǎn shì wǔ diǎn bàn.", "en": "The latest is 5:30.",
+      "choices": [
+        { "id": "five-thirty", "zh": "那就五点半。", "pinyin": "Nà jiù wǔ diǎn bàn.", "en": "5:30, then", "next": "details" },
+        { "id": "four-thirty", "zh": "那还是四点半吧。", "pinyin": "Nà háishi sì diǎn bàn ba.", "en": "4:30 after all", "next": "details" }
+      ]
+    },
+    "slots": {
+      "speaker": "Receptionist",
+      "zh": "明天有下午两点和四点半，后天上午十点也有。", "pinyin": "Míngtiān yǒu xiàwǔ liǎng diǎn hé sì diǎn bàn, hòutiān shàngwǔ shí diǎn yě yǒu.", "en": "Tomorrow there's 2 p.m. and 4:30; the day after, there's also 10 a.m.",
+      "rephrase": { "zh": "可以约的时间有三个：明天两点、明天四点半、后天十点。", "pinyin": "Kěyǐ yuē de shíjiān yǒu sān ge: míngtiān liǎng diǎn, míngtiān sì diǎn bàn, hòutiān shí diǎn.", "en": "There are three times: tomorrow at 2, tomorrow at 4:30, and the day after at 10." },
+      "choices": [
+        { "id": "two", "zh": "明天两点吧。", "pinyin": "Míngtiān liǎng diǎn ba.", "en": "Tomorrow at two", "next": "details" },
+        { "id": "four-thirty", "zh": "明天四点半吧。", "pinyin": "Míngtiān sì diǎn bàn ba.", "en": "Tomorrow at 4:30", "next": "details" },
+        { "id": "ten", "zh": "后天十点吧。", "pinyin": "Hòutiān shí diǎn ba.", "en": "The day after at ten", "next": "details" },
+        { "id": "none", "zh": "这些时间我都不行。", "pinyin": "Zhèxiē shíjiān wǒ dōu bù xíng.", "en": "None of those work for me", "next": "waitlist" }
+      ]
+    },
+    "details": {
+      "speaker": "Receptionist",
+      "zh": "好的。请问您贵姓？电话号码是多少？", "pinyin": "Hǎo de. Qǐngwèn nín guìxìng? Diànhuà hàomǎ shì duōshao?", "en": "Okay. May I have your surname and phone number?",
+      "variants": [
+        { "zh": "叫什么名字？", "pinyin": "Jiào shénme míngzi?", "en": "What's your name?" },
+        { "zh": "留个电话。", "pinyin": "Liú ge diànhuà.", "en": "Leave a phone number." }
+      ],
+      "rephrase": { "zh": "我需要您的名字和手机号。", "pinyin": "Wǒ xūyào nín de míngzi hé shǒujīhào.", "en": "I need your name and mobile number." },
+      "choices": [
+        { "id": "give", "zh": "我姓李，电话是一三八，一二三四，五六七八。", "pinyin": "Wǒ xìng Lǐ, diànhuà shì yāo sān bā, yāo èr sān sì, wǔ liù qī bā.", "en": "My surname is Li; my phone is 138 1234 5678", "next": "confirm" },
+        { "id": "email", "zh": "我没有中国的手机号，可以留邮箱吗？", "pinyin": "Wǒ méiyǒu Zhōngguó de shǒujīhào, kěyǐ liú yóuxiāng ma?", "en": "I don't have a Chinese phone number — can I leave an email?", "next": "email" },
+        { "id": "bring", "zh": "需要带什么吗？", "pinyin": "Xūyào dài shénme ma?", "en": "Do I need to bring anything?", "next": "bring" }
+      ]
+    },
+    "email": {
+      "speaker": "Receptionist",
+      "zh": "可以，请把邮箱写在这里。", "pinyin": "Kěyǐ, qǐng bǎ yóuxiāng xiě zài zhèlǐ.", "en": "Sure, please write your email here.",
+      "choices": [
+        { "id": "done", "zh": "好的，写好了。", "pinyin": "Hǎo de, xiě hǎo le.", "en": "Okay, done", "next": "confirm" }
+      ]
+    },
+    "bring": {
+      "speaker": "Receptionist",
+      "zh": "请带上护照或者身份证。", "pinyin": "Qǐng dài shàng hùzhào huòzhě shēnfènzhèng.", "en": "Please bring your passport or ID card.",
+      "choices": [
+        { "id": "name", "zh": "好的。我姓李。", "pinyin": "Hǎo de. Wǒ xìng Lǐ.", "en": "Okay. My surname is Li", "next": "confirm" }
+      ]
+    },
+    "confirm": {
+      "speaker": "Receptionist",
+      "zh": "好，给您约好了。到时候请提前十分钟到。", "pinyin": "Hǎo, gěi nín yuē hǎo le. Dào shíhou qǐng tíqián shí fēnzhōng dào.", "en": "All booked. Please arrive ten minutes early.",
+      "rephrase": { "zh": "预约好了，请早来十分钟。", "pinyin": "Yùyuē hǎo le, qǐng zǎo lái shí fēnzhōng.", "en": "You're booked — please come ten minutes early." },
+      "choices": [
+        { "id": "thanks", "zh": "好的，谢谢！", "pinyin": "Hǎo de, xièxie!", "en": "Okay, thank you!", "next": "booked-end" },
+        { "id": "reconfirm", "zh": "能再确认一下时间吗？", "pinyin": "Néng zài quèrèn yíxià shíjiān ma?", "en": "Could you confirm the time again?", "next": "reconfirm-end" },
+        { "id": "late", "zh": "如果我晚到怎么办？", "pinyin": "Rúguǒ wǒ wǎn dào zěnme bàn?", "en": "What if I'm late?", "next": "late-end" }
+      ]
+    },
+    "today": {
+      "speaker": "Receptionist",
+      "zh": "今天已经满了，最早是明天。要帮您约吗？", "pinyin": "Jīntiān yǐjīng mǎn le, zuì zǎo shì míngtiān. Yào bāng nín yuē ma?", "en": "Today is full; the earliest is tomorrow. Shall I book you in?",
+      "choices": [
+        { "id": "yes", "zh": "好，帮我约明天。", "pinyin": "Hǎo, bāng wǒ yuē míngtiān.", "en": "Yes, book me for tomorrow", "next": "when" },
+        { "id": "urgent", "zh": "我很不舒服，能不能早一点？", "pinyin": "Wǒ hěn bù shūfu, néng bu néng zǎo yìdiǎn?", "en": "I feel quite unwell — could it be sooner?", "next": "urgent" }
+      ]
+    },
+    "urgent": {
+      "speaker": "Receptionist",
+      "zh": "如果很急，可以去旁边的医院看急诊。", "pinyin": "Rúguǒ hěn jí, kěyǐ qù pángbiān de yīyuàn kàn jízhěn.", "en": "If it's urgent, you can go to the emergency department at the hospital next door.",
+      "choices": [
+        { "id": "er", "zh": "好，我去急诊。谢谢。", "pinyin": "Hǎo, wǒ qù jízhěn. Xièxie.", "en": "Okay, I'll go to emergency. Thanks", "next": "er-end" },
+        { "id": "tomorrow", "zh": "不用了，还是约明天吧。", "pinyin": "Bú yòng le, háishi yuē míngtiān ba.", "en": "That's okay — tomorrow, then", "next": "when" }
+      ]
+    },
+    "price": {
+      "speaker": "Receptionist",
+      "zh": "初诊两百块，以后复诊一百。", "pinyin": "Chūzhěn liǎng bǎi kuài, yǐhòu fùzhěn yìbǎi.", "en": "A first visit is 200 yuan; follow-up visits are 100.",
+      "choices": [
+        { "id": "book", "zh": "好，那我想预约。", "pinyin": "Hǎo, nà wǒ xiǎng yùyuē.", "en": "Okay, I'd like to book, then", "next": "when" },
+        { "id": "insurance", "zh": "可以用保险吗？", "pinyin": "Kěyǐ yòng bǎoxiǎn ma?", "en": "Can I use insurance?", "next": "insurance" }
+      ]
+    },
+    "insurance": {
+      "speaker": "Receptionist",
+      "zh": "我们可以开发票，您自己找保险公司报销。", "pinyin": "Wǒmen kěyǐ kāi fāpiào, nín zìjǐ zhǎo bǎoxiǎn gōngsī bàoxiāo.", "en": "We can issue a receipt; you claim it back from your insurer yourself.",
+      "choices": [
+        { "id": "book", "zh": "明白了，那帮我预约吧。", "pinyin": "Míngbai le, nà bāng wǒ yùyuē ba.", "en": "I see — please book me in, then", "next": "when" }
+      ]
+    },
+    "booked-end": {
+      "speaker": "Receptionist",
+      "zh": "不客气，到时候见！", "pinyin": "Bú kèqi, dào shíhou jiàn!", "en": "You're welcome. See you then!",
+      "outcome": "Your appointment is booked.",
+      "choices": []
+    },
+    "reconfirm-end": {
+      "speaker": "Receptionist",
+      "zh": "我会给您发短信，确认时间和地址。", "pinyin": "Wǒ huì gěi nín fā duǎnxìn, quèrèn shíjiān hé dìzhǐ.", "en": "I'll text you to confirm the time and address.",
+      "outcome": "Booked — a confirmation text is on its way.",
+      "choices": []
+    },
+    "late-end": {
+      "speaker": "Receptionist",
+      "zh": "晚到十五分钟以上，可能要重新约。", "pinyin": "Wǎn dào shíwǔ fēnzhōng yǐshàng, kěnéng yào chóngxīn yuē.", "en": "If you're more than fifteen minutes late, you may need to rebook.",
+      "outcome": "Booked — and you know the lateness rule.",
+      "choices": []
+    },
+    "waitlist-end": {
+      "speaker": "Receptionist",
+      "zh": "好的，有消息马上通知您。", "pinyin": "Hǎo de, yǒu xiāoxi mǎshàng tōngzhī nín.", "en": "Okay, I'll let you know as soon as something opens.",
+      "outcome": "You are on the waiting list.",
+      "choices": []
+    },
+    "er-end": {
+      "speaker": "Receptionist",
+      "zh": "好，出门右转就是医院。早日康复！", "pinyin": "Hǎo, chūmén yòu zhuǎn jiù shì yīyuàn. Zǎorì kāngfù!", "en": "Okay — turn right out of the door for the hospital. Get well soon!",
+      "outcome": "You head to the emergency department.",
+      "choices": []
+    }
+  }
+}

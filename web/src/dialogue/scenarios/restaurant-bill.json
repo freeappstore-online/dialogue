@@ -1,0 +1,104 @@
+{
+  "id": "restaurant-bill",
+  "version": "2.0.0",
+  "category": "restaurant",
+  "title": "Asking for and paying the bill",
+  "summary": "Get the bill, pack leftovers, split the payment, fix a wrong dish and choose how to pay.",
+  "start": "anything-else",
+  "nodes": {
+    "anything-else": {
+      "speaker": "Waiter",
+      "zh": "还需要点别的吗？", "pinyin": "Hái xūyào diǎn bié de ma?", "en": "Would you like anything else?",
+      "variants": [
+        { "zh": "吃得怎么样？", "pinyin": "Chī de zěnmeyàng?", "en": "How was the food?" },
+        { "zh": "还要加菜吗？", "pinyin": "Hái yào jiā cài ma?", "en": "Would you like to add any dishes?" }
+      ],
+      "rephrase": { "zh": "您还想再点什么吗？", "pinyin": "Nín hái xiǎng zài diǎn shénme ma?", "en": "Is there anything more you'd like to order?" },
+      "choices": [
+        { "id": "bill", "zh": "不用了，买单。", "pinyin": "Bú yòng le, mǎidān.", "en": "No thanks — the bill, please", "next": "pay-how" },
+        { "id": "pack", "zh": "可以帮我打包吗？", "pinyin": "Kěyǐ bāng wǒ dǎbāo ma?", "en": "Could you pack this up for me?", "next": "pack" },
+        { "id": "split", "zh": "我们想分开付。", "pinyin": "Wǒmen xiǎng fēnkāi fù.", "en": "We'd like to pay separately", "next": "split" },
+        { "id": "wrong", "zh": "这个菜我们没点。", "pinyin": "Zhège cài wǒmen méi diǎn.", "en": "We didn't order this dish", "next": "wrong-dish" }
+      ]
+    },
+    "pack": {
+      "speaker": "Waiter",
+      "zh": "可以，打包盒一块钱一个。", "pinyin": "Kěyǐ, dǎbāo hé yí kuài qián yí ge.", "en": "Sure. Takeaway boxes are one yuan each.",
+      "choices": [
+        { "id": "bill", "zh": "好的，再帮我买单。", "pinyin": "Hǎo de, zài bāng wǒ mǎidān.", "en": "Okay — and the bill, please", "next": "pay-how" }
+      ]
+    },
+    "split": {
+      "speaker": "Waiter",
+      "zh": "可以，你们每个人扫这个码，各付各的。", "pinyin": "Kěyǐ, nǐmen měi ge rén sǎo zhège mǎ, gè fù gè de.", "en": "Sure. Each of you scan this code and pay for your own.",
+      "rephrase": { "zh": "没问题，一个人一个人扫码付就行。", "pinyin": "Méi wèntí, yí ge rén yí ge rén sǎo mǎ fù jiù xíng.", "en": "No problem — just scan and pay one person at a time." },
+      "choices": [
+        { "id": "ok", "zh": "好的，谢谢。", "pinyin": "Hǎo de, xièxie.", "en": "Okay, thanks", "next": "paid-end" },
+        { "id": "even", "zh": "我们平分吧，一个人多少？", "pinyin": "Wǒmen píngfēn ba, yí ge rén duōshao?", "en": "Let's split it evenly — how much each?", "next": "split-amount" }
+      ]
+    },
+    "split-amount": {
+      "speaker": "Waiter",
+      "zh": "一共两百四，一个人一百二。", "pinyin": "Yígòng liǎng bǎi sì, yí ge rén yìbǎi èr.", "en": "240 in total — 120 each.",
+      "choices": [
+        { "id": "scan", "zh": "好，我扫码。", "pinyin": "Hǎo, wǒ sǎo mǎ.", "en": "Okay, I'll scan", "next": "paid-end" }
+      ]
+    },
+    "wrong-dish": {
+      "speaker": "Waiter",
+      "zh": "不好意思，我看一下……是我们弄错了，这个不算钱。", "pinyin": "Bù hǎoyìsi, wǒ kàn yíxià... shì wǒmen nòng cuò le, zhège bú suàn qián.", "en": "Sorry, let me check... it was our mistake. We won't charge for it.",
+      "choices": [
+        { "id": "bill", "zh": "没关系，那买单吧。", "pinyin": "Méi guānxi, nà mǎidān ba.", "en": "No problem — the bill, then", "next": "pay-how" }
+      ]
+    },
+    "pay-how": {
+      "speaker": "Waiter",
+      "zh": "好的，一共一百八十六。扫码还是刷卡？", "pinyin": "Hǎo de, yígòng yìbǎi bāshíliù. Sǎo mǎ háishi shuā kǎ?", "en": "Okay, 186 in total. Scanning a code, or card?",
+      "variants": [
+        { "zh": "微信还是支付宝？", "pinyin": "Wēixìn háishi Zhīfùbǎo?", "en": "WeChat or Alipay?" },
+        { "zh": "怎么付？", "pinyin": "Zěnme fù?", "en": "How are you paying?" }
+      ],
+      "rephrase": { "zh": "您用手机付，还是用银行卡？", "pinyin": "Nín yòng shǒujī fù, háishi yòng yínhángkǎ?", "en": "Are you paying by phone or by bank card?" },
+      "choices": [
+        { "id": "scan", "zh": "我扫码。", "pinyin": "Wǒ sǎo mǎ.", "en": "I'll scan the code", "next": "paid-end" },
+        { "id": "card", "zh": "可以刷外国的卡吗？", "pinyin": "Kěyǐ shuā wàiguó de kǎ ma?", "en": "Can I use a foreign card?", "next": "card" },
+        { "id": "cash", "zh": "我付现金。", "pinyin": "Wǒ fù xiànjīn.", "en": "I'll pay cash", "next": "cash-end" },
+        { "id": "fapiao", "zh": "可以开发票吗？", "pinyin": "Kěyǐ kāi fāpiào ma?", "en": "Can I get an official receipt (fapiao)?", "next": "fapiao" }
+      ]
+    },
+    "card": {
+      "speaker": "Waiter",
+      "zh": "不好意思，外国卡刷不了。可以用支付宝或者现金。", "pinyin": "Bù hǎoyìsi, wàiguó kǎ shuā bu liǎo. Kěyǐ yòng Zhīfùbǎo huòzhě xiànjīn.", "en": "Sorry, we can't take foreign cards. You can use Alipay or cash.",
+      "choices": [
+        { "id": "alipay", "zh": "那我用支付宝吧。", "pinyin": "Nà wǒ yòng Zhīfùbǎo ba.", "en": "I'll use Alipay, then", "next": "paid-end" },
+        { "id": "cash", "zh": "我付现金。", "pinyin": "Wǒ fù xiànjīn.", "en": "I'll pay cash", "next": "cash-end" },
+        { "id": "friend", "zh": "那我朋友帮我付吧。", "pinyin": "Nà wǒ péngyou bāng wǒ fù ba.", "en": "Then my friend will pay for me", "next": "friend-end" }
+      ]
+    },
+    "fapiao": {
+      "speaker": "Waiter",
+      "zh": "可以，扫这个码填一下抬头就行。", "pinyin": "Kěyǐ, sǎo zhège mǎ tián yíxià táitóu jiù xíng.", "en": "Sure — scan this code and fill in the name for the receipt.",
+      "choices": [
+        { "id": "pay", "zh": "好的，然后我扫码付款。", "pinyin": "Hǎo de, ránhòu wǒ sǎo mǎ fùkuǎn.", "en": "Okay, then I'll scan to pay", "next": "paid-end" }
+      ]
+    },
+    "paid-end": {
+      "speaker": "Waiter",
+      "zh": "收到了，谢谢！慢走，欢迎下次再来。", "pinyin": "Shōudào le, xièxie! Màn zǒu, huānyíng xià cì zài lái.", "en": "Got it, thank you! Take care, and come again.",
+      "outcome": "The bill is paid.",
+      "choices": []
+    },
+    "friend-end": {
+      "speaker": "Waiter",
+      "zh": "好的，请这位扫一下码。谢谢！", "pinyin": "Hǎo de, qǐng zhè wèi sǎo yíxià mǎ. Xièxie!", "en": "Okay — would you (the friend) scan the code, please? Thank you!",
+      "outcome": "Your friend pays by phone.",
+      "choices": []
+    },
+    "cash-end": {
+      "speaker": "Waiter",
+      "zh": "收您两百，找您十四块。谢谢，慢走！", "pinyin": "Shōu nín liǎng bǎi, zhǎo nín shísì kuài. Xièxie, màn zǒu!", "en": "200 received, 14 back in change. Thanks, take care!",
+      "outcome": "You pay cash and get your change.",
+      "choices": []
+    }
+  }
+}

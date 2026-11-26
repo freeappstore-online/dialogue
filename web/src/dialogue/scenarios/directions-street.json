@@ -1,0 +1,133 @@
+{
+  "id": "directions-street",
+  "version": "1.0.0",
+  "category": "directions",
+  "title": "Finding the station on foot",
+  "summary": "Ask a passer-by the way, choose walking or transport, clear up left versus right and confirm a landmark.",
+  "start": "help",
+  "nodes": {
+    "help": {
+      "speaker": "Passer-by",
+      "zh": "怎么了？需要帮忙吗？", "pinyin": "Zěnme le? Xūyào bāngmáng ma?", "en": "What's up? Do you need help?",
+      "variants": [
+        { "zh": "你找什么？", "pinyin": "Nǐ zhǎo shénme?", "en": "What are you looking for?" },
+        { "zh": "有什么事吗？", "pinyin": "Yǒu shénme shì ma?", "en": "Can I help you with something?" }
+      ],
+      "rephrase": { "zh": "你是不是在找路？", "pinyin": "Nǐ shì bu shì zài zhǎo lù?", "en": "Are you trying to find your way?" },
+      "choices": [
+        { "id": "station", "zh": "请问，地铁站在哪儿？", "pinyin": "Qǐngwèn, dìtiě zhàn zài nǎr?", "en": "Excuse me, where is the subway station?", "next": "walk-or-ride" },
+        { "id": "lost", "zh": "我迷路了。", "pinyin": "Wǒ mílù le.", "en": "I'm lost", "next": "where-going" },
+        { "id": "hotel", "zh": "我要去南京东路。", "pinyin": "Wǒ yào qù Nánjīng Dōng Lù.", "en": "I'm going to East Nanjing Road", "next": "nanjing" }
+      ]
+    },
+    "where-going": {
+      "speaker": "Passer-by",
+      "zh": "别着急。你要去哪儿？", "pinyin": "Bié zháojí. Nǐ yào qù nǎr?", "en": "Don't worry. Where are you going?",
+      "variants": [
+        { "zh": "你去哪里？", "pinyin": "Nǐ qù nǎlǐ?", "en": "Where are you going?" }
+      ],
+      "rephrase": { "zh": "你想找什么地方？", "pinyin": "Nǐ xiǎng zhǎo shénme dìfang?", "en": "What place are you trying to find?" },
+      "choices": [
+        { "id": "station", "zh": "去地铁站。", "pinyin": "Qù dìtiě zhàn.", "en": "To the subway station", "next": "walk-or-ride" },
+        { "id": "hotel", "zh": "回我的酒店，在南京东路。", "pinyin": "Huí wǒ de jiǔdiàn, zài Nánjīng Dōng Lù.", "en": "Back to my hotel, on East Nanjing Road", "next": "nanjing" },
+        { "id": "unsure", "zh": "我也不太确定，我看看地图。", "pinyin": "Wǒ yě bú tài quèdìng, wǒ kànkan dìtú.", "en": "I'm not quite sure — let me check the map", "next": "map-end" }
+      ]
+    },
+    "walk-or-ride": {
+      "speaker": "Passer-by",
+      "zh": "地铁站？走路十分钟，打车三分钟就到。", "pinyin": "Dìtiě zhàn? Zǒulù shí fēnzhōng, dǎchē sān fēnzhōng jiù dào.", "en": "The subway station? Ten minutes on foot, three by taxi.",
+      "variants": [
+        { "zh": "不远，走过去就行。", "pinyin": "Bù yuǎn, zǒu guòqu jiù xíng.", "en": "It's not far, you can walk." }
+      ],
+      "rephrase": { "zh": "走路要十分钟，坐出租车只要三分钟。", "pinyin": "Zǒulù yào shí fēnzhōng, zuò chūzūchē zhǐ yào sān fēnzhōng.", "en": "Walking takes ten minutes; a taxi takes only three." },
+      "choices": [
+        { "id": "walk", "zh": "我走过去。", "pinyin": "Wǒ zǒu guòqu.", "en": "I'll walk", "next": "walk-directions" },
+        { "id": "taxi", "zh": "我打车吧。", "pinyin": "Wǒ dǎchē ba.", "en": "I'll take a taxi", "next": "taxi-end" },
+        { "id": "bus", "zh": "有公交车吗？", "pinyin": "Yǒu gōngjiāochē ma?", "en": "Is there a bus?", "next": "bus-end" }
+      ]
+    },
+    "walk-directions": {
+      "speaker": "Passer-by",
+      "zh": "一直往前走，到第二个红绿灯右转，就能看到地铁站入口。", "pinyin": "Yìzhí wǎng qián zǒu, dào dì èr ge hónglǜdēng yòu zhuǎn, jiù néng kàndào dìtiě zhàn rùkǒu.", "en": "Go straight, turn right at the second traffic light, and you'll see the station entrance.",
+      "variants": [
+        { "zh": "往前走，然后右拐。", "pinyin": "Wǎng qián zǒu, ránhòu yòu guǎi.", "en": "Go ahead, then turn right." },
+        { "zh": "过了马路就是。", "pinyin": "Guòle mǎlù jiù shì.", "en": "It's just across the road." }
+      ],
+      "rephrase": { "zh": "先直走，看到第二个红绿灯，往右边走，入口就在那儿。", "pinyin": "Xiān zhí zǒu, kàndào dì èr ge hónglǜdēng, wǎng yòubian zǒu, rùkǒu jiù zài nàr.", "en": "Walk straight first; at the second traffic light go right, and the entrance is there." },
+      "choices": [
+        { "id": "confirm", "zh": "第二个红绿灯右转，对吗？", "pinyin": "Dì èr ge hónglǜdēng yòu zhuǎn, duì ma?", "en": "Right at the second traffic light, correct?", "next": "confirm-end" },
+        { "id": "which", "zh": "是左边还是右边？", "pinyin": "Shì zuǒbian háishi yòubian?", "en": "Left or right?", "next": "clarify" },
+        { "id": "landmark", "zh": "附近有什么明显的地方吗？", "pinyin": "Fùjìn yǒu shénme míngxiǎn de dìfang ma?", "en": "Is there a landmark nearby?", "next": "landmark" }
+      ]
+    },
+    "clarify": {
+      "speaker": "Passer-by",
+      "zh": "右边，右边。你看到那个银行了吗？在银行那儿右转。", "pinyin": "Yòubian, yòubian. Nǐ kàndào nàge yínháng le ma? Zài yínháng nàr yòu zhuǎn.", "en": "Right, right. See that bank? Turn right at the bank.",
+      "choices": [
+        { "id": "see", "zh": "看到了，谢谢！", "pinyin": "Kàndào le, xièxie!", "en": "I see it, thanks!", "next": "confirm-end" },
+        { "id": "point", "zh": "你能指给我看吗？", "pinyin": "Nǐ néng zhǐ gěi wǒ kàn ma?", "en": "Could you point it out to me?", "next": "point-end" }
+      ]
+    },
+    "landmark": {
+      "speaker": "Passer-by",
+      "zh": "有，地铁站旁边有一个很大的商场。", "pinyin": "Yǒu, dìtiě zhàn pángbiān yǒu yí ge hěn dà de shāngchǎng.", "en": "Yes, there's a big shopping mall next to the station.",
+      "choices": [
+        { "id": "mall", "zh": "好，我找那个商场。", "pinyin": "Hǎo, wǒ zhǎo nàge shāngchǎng.", "en": "Okay, I'll look for the mall", "next": "confirm-end" }
+      ]
+    },
+    "nanjing": {
+      "speaker": "Passer-by",
+      "zh": "南京东路离这儿有点远，你最好坐地铁，二号线一站就到。", "pinyin": "Nánjīng Dōng Lù lí zhèr yǒudiǎn yuǎn, nǐ zuìhǎo zuò dìtiě, èr hào xiàn yí zhàn jiù dào.", "en": "East Nanjing Road is a bit far from here. Best take the subway — one stop on Line 2.",
+      "rephrase": { "zh": "那儿有点远，坐地铁二号线比较方便，只要一站。", "pinyin": "Nàr yǒudiǎn yuǎn, zuò dìtiě èr hào xiàn bǐjiào fāngbiàn, zhǐ yào yí zhàn.", "en": "It's a bit far; Line 2 is easier — only one stop." },
+      "choices": [
+        { "id": "walk", "zh": "走路要多久？", "pinyin": "Zǒulù yào duō jiǔ?", "en": "How long is it on foot?", "next": "nanjing-walk" },
+        { "id": "subway", "zh": "好，那地铁站怎么走？", "pinyin": "Hǎo, nà dìtiě zhàn zěnme zǒu?", "en": "Okay — how do I get to the subway station?", "next": "walk-directions" },
+        { "id": "taxi", "zh": "我打车吧。", "pinyin": "Wǒ dǎchē ba.", "en": "I'll take a taxi", "next": "taxi-end" }
+      ]
+    },
+    "nanjing-walk": {
+      "speaker": "Passer-by",
+      "zh": "大概二十分钟，一直往东走。", "pinyin": "Dàgài èrshí fēnzhōng, yìzhí wǎng dōng zǒu.", "en": "About twenty minutes — keep heading east.",
+      "choices": [
+        { "id": "east", "zh": "东边是哪边？", "pinyin": "Dōngbian shì nǎbian?", "en": "Which way is east?", "next": "east-end" },
+        { "id": "subway", "zh": "那我还是坐地铁吧。地铁站怎么走？", "pinyin": "Nà wǒ háishi zuò dìtiě ba. Dìtiě zhàn zěnme zǒu?", "en": "I'll take the subway after all. How do I get to the station?", "next": "walk-directions" }
+      ]
+    },
+    "confirm-end": {
+      "speaker": "Passer-by",
+      "zh": "对，就在那儿。很近的，不会错过。", "pinyin": "Duì, jiù zài nàr. Hěn jìn de, bú huì cuòguò.", "en": "Yes, right there. It's close — you won't miss it.",
+      "outcome": "You know the way to the station entrance.",
+      "choices": []
+    },
+    "point-end": {
+      "speaker": "Passer-by",
+      "zh": "你看，就是那个蓝色的牌子，地铁的标志。", "pinyin": "Nǐ kàn, jiù shì nàge lánsè de páizi, dìtiě de biāozhì.", "en": "Look — that blue sign. That's the subway logo.",
+      "outcome": "They point out the subway sign.",
+      "choices": []
+    },
+    "taxi-end": {
+      "speaker": "Passer-by",
+      "zh": "打车的话在路口等就行，或者用手机叫车。", "pinyin": "Dǎchē dehuà zài lùkǒu děng jiù xíng, huòzhě yòng shǒujī jiào chē.", "en": "For a taxi, wait at the intersection, or call one on your phone.",
+      "outcome": "You head to the intersection for a taxi.",
+      "choices": []
+    },
+    "bus-end": {
+      "speaker": "Passer-by",
+      "zh": "有，对面坐二十路，坐两站就到。", "pinyin": "Yǒu, duìmiàn zuò èrshí lù, zuò liǎng zhàn jiù dào.", "en": "Yes — take bus 20 from across the street. It's two stops.",
+      "outcome": "You take bus 20 for two stops.",
+      "choices": []
+    },
+    "east-end": {
+      "speaker": "Passer-by",
+      "zh": "就是这个方向，跟着这条大路走就行。", "pinyin": "Jiù shì zhège fāngxiàng, gēnzhe zhè tiáo dà lù zǒu jiù xíng.", "en": "This direction. Just follow this main road.",
+      "outcome": "You walk east along the main road.",
+      "choices": []
+    },
+    "map-end": {
+      "speaker": "Passer-by",
+      "zh": "好，你看看。要是找不到，再问我。", "pinyin": "Hǎo, nǐ kànkan. Yàoshi zhǎo bu dào, zài wèn wǒ.", "en": "Sure, have a look. If you can't find it, ask me again.",
+      "outcome": "You check your map; they offer more help if needed.",
+      "choices": []
+    }
+  }
+}

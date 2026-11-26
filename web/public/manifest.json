@@ -9,6 +9,9 @@
   "id": "/",
   "scope": "/",
   "min_viewport_width": 320,
+  "permissions": [
+    { "name": "microphone", "reason": "Optional: after you tap Listen, turns one short spoken phrase into text to find it or check your reply. Never always-on; nothing is stored." }
+  ],
   "icons": [
     {
       "src": "/pwa-192x192.png",

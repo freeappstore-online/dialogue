@@ -1,0 +1,130 @@
+{
+  "id": "restaurant-ordering",
+  "version": "2.0.0",
+  "category": "restaurant",
+  "title": "Ordering food and drinks",
+  "summary": "Order a dish, ask for a recommendation, handle a sold-out dish or a dietary need, then pick a drink.",
+  "start": "order",
+  "nodes": {
+    "order": {
+      "speaker": "Waiter",
+      "zh": "请问您想点什么？", "pinyin": "Qǐngwèn nín xiǎng diǎn shénme?", "en": "What would you like to order?",
+      "variants": [
+        { "zh": "可以点菜了吗？", "pinyin": "Kěyǐ diǎn cài le ma?", "en": "Are you ready to order?" },
+        { "zh": "想吃点儿什么？", "pinyin": "Xiǎng chī diǎnr shénme?", "en": "What would you like to eat?" },
+        { "zh": "好的，请坐。请问您想点什么？", "pinyin": "Hǎo de, qǐng zuò. Qǐngwèn nín xiǎng diǎn shénme?", "en": "Please have a seat. What would you like to order?" }
+      ],
+      "rephrase": { "zh": "您决定好要吃什么了吗？", "pinyin": "Nín juédìng hǎo yào chī shénme le ma?", "en": "Have you decided what you'd like to eat?" },
+      "choices": [
+        { "id": "noodles", "zh": "我想要一碗面条。", "pinyin": "Wǒ xiǎng yào yì wǎn miàntiáo.", "en": "I would like a bowl of noodles", "next": "spicy" },
+        { "id": "rice", "zh": "我想要炒饭。", "pinyin": "Wǒ xiǎng yào chǎofàn.", "en": "I would like fried rice", "next": "rice-soldout" },
+        { "id": "recommend", "zh": "你们有什么推荐？", "pinyin": "Nǐmen yǒu shénme tuījiàn?", "en": "What do you recommend?", "next": "recommend" },
+        { "id": "minute", "zh": "我还没想好，再等一下。", "pinyin": "Wǒ hái méi xiǎng hǎo, zài děng yíxià.", "en": "Could I have another minute?", "next": "minute-end" }
+      ]
+    },
+    "spicy": {
+      "speaker": "Waiter",
+      "zh": "好的。要辣的还是不辣的？", "pinyin": "Hǎo de. Yào là de háishi bú là de?", "en": "Sure. Spicy or not spicy?",
+      "variants": [
+        { "zh": "能吃辣吗？", "pinyin": "Néng chī là ma?", "en": "Can you eat spicy food?" }
+      ],
+      "rephrase": { "zh": "面条里要不要放辣椒？", "pinyin": "Miàntiáo lǐ yào bu yào fàng làjiāo?", "en": "Do you want chili in the noodles?" },
+      "choices": [
+        { "id": "mild", "zh": "微辣就好。", "pinyin": "Wēi là jiù hǎo.", "en": "Just a little spicy", "next": "drink" },
+        { "id": "none", "zh": "不要辣，谢谢。", "pinyin": "Bú yào là, xièxie.", "en": "Not spicy, thanks", "next": "drink" },
+        { "id": "extra", "zh": "特别辣！", "pinyin": "Tèbié là!", "en": "Extra spicy!", "next": "drink" }
+      ]
+    },
+    "rice-soldout": {
+      "speaker": "Waiter",
+      "zh": "不好意思，炒饭今天卖完了。换成面条可以吗？", "pinyin": "Bù hǎoyìsi, chǎofàn jīntiān mài wán le. Huàn chéng miàntiáo kěyǐ ma?", "en": "Sorry, the fried rice is sold out today. Would noodles work instead?",
+      "variants": [
+        { "zh": "炒饭没有了。", "pinyin": "Chǎofàn méiyǒu le.", "en": "There's no more fried rice." }
+      ],
+      "rephrase": { "zh": "炒饭已经没有了，您想不想试试面条？", "pinyin": "Chǎofàn yǐjīng méiyǒu le, nín xiǎng bu xiǎng shìshi miàntiáo?", "en": "The fried rice is gone — would you like to try the noodles?" },
+      "choices": [
+        { "id": "noodles", "zh": "好，那就要面条。", "pinyin": "Hǎo, nà jiù yào miàntiáo.", "en": "Okay, noodles then", "next": "spicy" },
+        { "id": "else", "zh": "那有什么别的吗？", "pinyin": "Nà yǒu shénme bié de ma?", "en": "What else do you have, then?", "next": "recommend" },
+        { "id": "look", "zh": "那我再看看菜单。", "pinyin": "Nà wǒ zài kànkan càidān.", "en": "Then I'll look at the menu again", "next": "more-end" }
+      ]
+    },
+    "recommend": {
+      "speaker": "Waiter",
+      "zh": "我们的招牌菜是红烧肉。", "pinyin": "Wǒmen de zhāopái cài shì hóngshāoròu.", "en": "Our specialty is braised pork.",
+      "variants": [
+        { "zh": "红烧肉卖得最好。", "pinyin": "Hóngshāoròu mài de zuì hǎo.", "en": "The braised pork sells best." }
+      ],
+      "rephrase": { "zh": "很多客人都点红烧肉，这是我们最有名的菜。", "pinyin": "Hěn duō kèrén dōu diǎn hóngshāoròu, zhè shì wǒmen zuì yǒumíng de cài.", "en": "Lots of customers order the braised pork; it's our most famous dish." },
+      "choices": [
+        { "id": "accept", "zh": "好，我要那个。", "pinyin": "Hǎo, wǒ yào nàge.", "en": "Great, I'll have that", "next": "drink" },
+        { "id": "no-pork", "zh": "我不吃猪肉，有素菜吗？", "pinyin": "Wǒ bù chī zhūròu, yǒu sùcài ma?", "en": "I don't eat pork — do you have vegetable dishes?", "next": "dietary" },
+        { "id": "spicy", "zh": "辣不辣？", "pinyin": "Là bu là?", "en": "Is it spicy?", "next": "pork-spicy" },
+        { "id": "look", "zh": "谢谢，我再看看。", "pinyin": "Xièxie, wǒ zài kànkan.", "en": "Thanks, let me look some more", "next": "more-end" }
+      ]
+    },
+    "pork-spicy": {
+      "speaker": "Waiter",
+      "zh": "不辣，有一点儿甜。", "pinyin": "Bú là, yǒu yìdiǎnr tián.", "en": "It's not spicy — it's a little sweet.",
+      "choices": [
+        { "id": "accept", "zh": "好，我要那个。", "pinyin": "Hǎo, wǒ yào nàge.", "en": "Great, I'll have that", "next": "drink" },
+        { "id": "look", "zh": "谢谢，我再看看。", "pinyin": "Xièxie, wǒ zài kànkan.", "en": "Thanks, let me look some more", "next": "more-end" }
+      ]
+    },
+    "dietary": {
+      "speaker": "Waiter",
+      "zh": "有，炒青菜和地三鲜都是素的。", "pinyin": "Yǒu, chǎo qīngcài hé dìsānxiān dōu shì sù de.", "en": "Yes — the stir-fried greens and the potato, eggplant and pepper dish are both vegetarian.",
+      "rephrase": { "zh": "有不放肉的菜，比如炒青菜。", "pinyin": "Yǒu bú fàng ròu de cài, bǐrú chǎo qīngcài.", "en": "We have dishes without meat, like stir-fried greens." },
+      "choices": [
+        { "id": "greens", "zh": "那就要一份炒青菜。", "pinyin": "Nà jiù yào yí fèn chǎo qīngcài.", "en": "One stir-fried greens, then", "next": "drink" },
+        { "id": "allergy", "zh": "我对花生过敏，里面有花生吗？", "pinyin": "Wǒ duì huāshēng guòmǐn, lǐmiàn yǒu huāshēng ma?", "en": "I'm allergic to peanuts — is there peanut in it?", "next": "allergy" },
+        { "id": "both", "zh": "两个都要。", "pinyin": "Liǎng ge dōu yào.", "en": "I'll have both", "next": "drink" }
+      ]
+    },
+    "allergy": {
+      "speaker": "Waiter",
+      "zh": "没有花生。我跟厨房说一下，不放花生油。", "pinyin": "Méiyǒu huāshēng. Wǒ gēn chúfáng shuō yíxià, bú fàng huāshēng yóu.", "en": "No peanuts. I'll tell the kitchen not to use peanut oil.",
+      "choices": [
+        { "id": "thanks", "zh": "太好了，谢谢！", "pinyin": "Tài hǎo le, xièxie!", "en": "Great, thank you!", "next": "drink" }
+      ]
+    },
+    "drink": {
+      "speaker": "Waiter",
+      "zh": "好的。要喝点什么吗？", "pinyin": "Hǎo de. Yào hē diǎn shénme ma?", "en": "Okay. Anything to drink?",
+      "variants": [
+        { "zh": "喝什么？", "pinyin": "Hē shénme?", "en": "What will you drink?" },
+        { "zh": "需要饮料吗？", "pinyin": "Xūyào yǐnliào ma?", "en": "Would you like a drink?" }
+      ],
+      "rephrase": { "zh": "您想要什么饮料？", "pinyin": "Nín xiǎng yào shénme yǐnliào?", "en": "What drink would you like?" },
+      "choices": [
+        { "id": "tea", "zh": "来一壶茶吧。", "pinyin": "Lái yì hú chá ba.", "en": "A pot of tea, please", "next": "order-end" },
+        { "id": "water", "zh": "一杯温水就好。", "pinyin": "Yì bēi wēn shuǐ jiù hǎo.", "en": "Just a glass of warm water", "next": "order-end" },
+        { "id": "beer", "zh": "有冰啤酒吗？", "pinyin": "Yǒu bīng píjiǔ ma?", "en": "Do you have cold beer?", "next": "beer-end" },
+        { "id": "none", "zh": "不用了，谢谢。", "pinyin": "Bú yòng le, xièxie.", "en": "No thanks", "next": "order-end" }
+      ]
+    },
+    "order-end": {
+      "speaker": "Waiter",
+      "zh": "好的，马上来。请稍等！", "pinyin": "Hǎo de, mǎshàng lái. Qǐng shāo děng!", "en": "Coming right up. Please wait a moment!",
+      "outcome": "Your order is placed.",
+      "choices": []
+    },
+    "beer-end": {
+      "speaker": "Waiter",
+      "zh": "有，青岛啤酒，冰的。马上给您拿。", "pinyin": "Yǒu, Qīngdǎo píjiǔ, bīng de. Mǎshàng gěi nín ná.", "en": "Yes — cold Tsingtao. I'll bring it right away.",
+      "outcome": "Your order is placed with a cold beer.",
+      "choices": []
+    },
+    "minute-end": {
+      "speaker": "Waiter",
+      "zh": "没问题，您慢慢看，好了叫我。", "pinyin": "Méi wèntí, nín mànman kàn, hǎo le jiào wǒ.", "en": "No problem. Take your time and call me when you're ready.",
+      "outcome": "The waiter gives you more time.",
+      "choices": []
+    },
+    "more-end": {
+      "speaker": "Waiter",
+      "zh": "好的，您慢慢看。需要时请叫我。", "pinyin": "Hǎo de, nín mànman kàn. Xūyào shí qǐng jiào wǒ.", "en": "Take your time. Please call me when you are ready.",
+      "outcome": "You keep looking at the menu.",
+      "choices": []
+    }
+  }
+}

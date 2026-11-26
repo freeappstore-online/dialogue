@@ -1,0 +1,144 @@
+{
+  "id": "appointment-change",
+  "version": "1.0.0",
+  "category": "appointments",
+  "title": "Changing or cancelling an appointment",
+  "summary": "Move an existing booking, handle a full day, cancel, or just check the time and address.",
+  "start": "hello",
+  "nodes": {
+    "hello": {
+      "speaker": "Receptionist",
+      "zh": "您好，请问有什么事？", "pinyin": "Nín hǎo, qǐngwèn yǒu shénme shì?", "en": "Hello, what can I do for you?",
+      "variants": [
+        { "zh": "喂？", "pinyin": "Wéi?", "en": "Hello? (on the phone)" }
+      ],
+      "rephrase": { "zh": "您打电话有什么需要？", "pinyin": "Nín dǎ diànhuà yǒu shénme xūyào?", "en": "What are you calling about?" },
+      "choices": [
+        { "id": "reschedule", "zh": "我想改一下预约时间。", "pinyin": "Wǒ xiǎng gǎi yíxià yùyuē shíjiān.", "en": "I'd like to change my appointment time", "next": "lookup" },
+        { "id": "cancel", "zh": "我想取消预约。", "pinyin": "Wǒ xiǎng qǔxiāo yùyuē.", "en": "I'd like to cancel my appointment", "next": "cancel-name" },
+        { "id": "check", "zh": "我想确认一下我的预约。", "pinyin": "Wǒ xiǎng quèrèn yíxià wǒ de yùyuē.", "en": "I'd like to check my appointment", "next": "check-name" }
+      ]
+    },
+    "lookup": {
+      "speaker": "Receptionist",
+      "zh": "好的，您叫什么名字？原来约的是几点？", "pinyin": "Hǎo de, nín jiào shénme míngzi? Yuánlái yuē de shì jǐ diǎn?", "en": "Sure. What's your name, and what time was it originally?",
+      "rephrase": { "zh": "请告诉我您的名字和原来的预约时间。", "pinyin": "Qǐng gàosu wǒ nín de míngzi hé yuánlái de yùyuē shíjiān.", "en": "Please tell me your name and the original appointment time." },
+      "choices": [
+        { "id": "give", "zh": "我叫李明，原来是明天下午两点。", "pinyin": "Wǒ jiào Lǐ Míng, yuánlái shì míngtiān xiàwǔ liǎng diǎn.", "en": "I'm Li Ming — it was tomorrow at 2 p.m.", "next": "new-time" },
+        { "id": "forgot", "zh": "时间我忘了，我叫李明。", "pinyin": "Shíjiān wǒ wàng le, wǒ jiào Lǐ Míng.", "en": "I've forgotten the time — my name is Li Ming", "next": "found" }
+      ]
+    },
+    "found": {
+      "speaker": "Receptionist",
+      "zh": "找到了，明天下午两点。", "pinyin": "Zhǎodào le, míngtiān xiàwǔ liǎng diǎn.", "en": "Found it: tomorrow at 2 p.m.",
+      "choices": [
+        { "id": "change", "zh": "对，我想改个时间。", "pinyin": "Duì, wǒ xiǎng gǎi ge shíjiān.", "en": "Yes — I'd like to change it", "next": "new-time" }
+      ]
+    },
+    "new-time": {
+      "speaker": "Receptionist",
+      "zh": "您想改到什么时候？", "pinyin": "Nín xiǎng gǎi dào shénme shíhou?", "en": "When would you like to move it to?",
+      "variants": [
+        { "zh": "改到哪天？", "pinyin": "Gǎi dào nǎ tiān?", "en": "Move it to which day?" }
+      ],
+      "rephrase": { "zh": "您想换到哪一天、几点？", "pinyin": "Nín xiǎng huàn dào nǎ yì tiān, jǐ diǎn?", "en": "Which day and time would you like instead?" },
+      "choices": [
+        { "id": "friday", "zh": "星期五上午可以吗？", "pinyin": "Xīngqīwǔ shàngwǔ kěyǐ ma?", "en": "Is Friday morning possible?", "next": "friday" },
+        { "id": "next-week", "zh": "下个星期哪天有空？", "pinyin": "Xià ge xīngqī nǎ tiān yǒu kòng?", "en": "Which days are free next week?", "next": "next-week" },
+        { "id": "same-day", "zh": "同一天晚一点呢？", "pinyin": "Tóng yì tiān wǎn yìdiǎn ne?", "en": "What about later the same day?", "next": "same-day" }
+      ]
+    },
+    "friday": {
+      "speaker": "Receptionist",
+      "zh": "星期五上午约满了，下午三点可以。", "pinyin": "Xīngqīwǔ shàngwǔ yuē mǎn le, xiàwǔ sān diǎn kěyǐ.", "en": "Friday morning is full, but 3 p.m. works.",
+      "variants": [
+        { "zh": "那天上午没有位子了。", "pinyin": "Nà tiān shàngwǔ méiyǒu wèizi le.", "en": "There are no morning slots that day." }
+      ],
+      "choices": [
+        { "id": "three", "zh": "好，星期五下午三点。", "pinyin": "Hǎo, xīngqīwǔ xiàwǔ sān diǎn.", "en": "Okay, Friday at 3 p.m.", "next": "changed-end" },
+        { "id": "next-week", "zh": "那下个星期呢？", "pinyin": "Nà xià ge xīngqī ne?", "en": "What about next week, then?", "next": "next-week" }
+      ]
+    },
+    "next-week": {
+      "speaker": "Receptionist",
+      "zh": "下星期一和星期三都有空，上午下午都行。", "pinyin": "Xià xīngqīyī hé xīngqīsān dōu yǒu kòng, shàngwǔ xiàwǔ dōu xíng.", "en": "Next Monday and Wednesday are both open, morning or afternoon.",
+      "choices": [
+        { "id": "monday", "zh": "星期一上午吧。", "pinyin": "Xīngqīyī shàngwǔ ba.", "en": "Monday morning, please", "next": "changed-end" },
+        { "id": "wednesday", "zh": "星期三下午吧。", "pinyin": "Xīngqīsān xiàwǔ ba.", "en": "Wednesday afternoon, please", "next": "changed-end" }
+      ]
+    },
+    "same-day": {
+      "speaker": "Receptionist",
+      "zh": "明天五点还有一个空位。", "pinyin": "Míngtiān wǔ diǎn hái yǒu yí ge kòngwèi.", "en": "There's one opening tomorrow at five.",
+      "choices": [
+        { "id": "five", "zh": "五点可以，谢谢。", "pinyin": "Wǔ diǎn kěyǐ, xièxie.", "en": "Five works, thanks", "next": "changed-end" },
+        { "id": "next-week", "zh": "太晚了，那下个星期呢？", "pinyin": "Tài wǎn le, nà xià ge xīngqī ne?", "en": "Too late — what about next week?", "next": "next-week" }
+      ]
+    },
+    "cancel-name": {
+      "speaker": "Receptionist",
+      "zh": "好的，请问您的名字？", "pinyin": "Hǎo de, qǐngwèn nín de míngzi?", "en": "Okay, may I have your name?",
+      "choices": [
+        { "id": "name", "zh": "我叫李明。", "pinyin": "Wǒ jiào Lǐ Míng.", "en": "I'm Li Ming", "next": "cancel-offer" }
+      ]
+    },
+    "cancel-offer": {
+      "speaker": "Receptionist",
+      "zh": "找到了。要不要帮您改到别的时间，而不是取消？", "pinyin": "Zhǎodào le. Yào bu yào bāng nín gǎi dào bié de shíjiān, ér bú shì qǔxiāo?", "en": "Found it. Would you like to move it to another time instead of cancelling?",
+      "rephrase": { "zh": "您可以不取消，换一个时间，要吗？", "pinyin": "Nín kěyǐ bù qǔxiāo, huàn yí ge shíjiān, yào ma?", "en": "Instead of cancelling you could pick another time — would you like that?" },
+      "choices": [
+        { "id": "cancel", "zh": "不用，直接取消吧。", "pinyin": "Bú yòng, zhíjiē qǔxiāo ba.", "en": "No — just cancel it", "next": "cancelled-end" },
+        { "id": "move", "zh": "也好，那改个时间吧。", "pinyin": "Yě hǎo, nà gǎi ge shíjiān ba.", "en": "Good idea — let's change the time", "next": "new-time" },
+        { "id": "fee", "zh": "取消要收费吗？", "pinyin": "Qǔxiāo yào shōufèi ma?", "en": "Is there a cancellation fee?", "next": "fee" }
+      ]
+    },
+    "fee": {
+      "speaker": "Receptionist",
+      "zh": "提前二十四小时取消不收费。", "pinyin": "Tíqián èrshísì xiǎoshí qǔxiāo bù shōufèi.", "en": "There's no charge if you cancel 24 hours ahead.",
+      "choices": [
+        { "id": "cancel", "zh": "那请帮我取消。", "pinyin": "Nà qǐng bāng wǒ qǔxiāo.", "en": "Then please cancel it", "next": "cancelled-end" },
+        { "id": "move", "zh": "那我还是改个时间吧。", "pinyin": "Nà wǒ háishi gǎi ge shíjiān ba.", "en": "Then I'll change the time instead", "next": "new-time" }
+      ]
+    },
+    "check-name": {
+      "speaker": "Receptionist",
+      "zh": "好的，请问您的名字？", "pinyin": "Hǎo de, qǐngwèn nín de míngzi?", "en": "Okay, may I have your name?",
+      "choices": [
+        { "id": "name", "zh": "我叫李明。", "pinyin": "Wǒ jiào Lǐ Míng.", "en": "I'm Li Ming", "next": "check-found" }
+      ]
+    },
+    "check-found": {
+      "speaker": "Receptionist",
+      "zh": "李明，明天下午两点，没错。", "pinyin": "Lǐ Míng, míngtiān xiàwǔ liǎng diǎn, méi cuò.", "en": "Li Ming, tomorrow at 2 p.m. — that's right.",
+      "choices": [
+        { "id": "thanks", "zh": "好的，谢谢！", "pinyin": "Hǎo de, xièxie!", "en": "Great, thanks!", "next": "checked-end" },
+        { "id": "address", "zh": "诊所的地址在哪儿？", "pinyin": "Zhěnsuǒ de dìzhǐ zài nǎr?", "en": "What's the clinic's address?", "next": "address-end" },
+        { "id": "change", "zh": "我想改到别的时间。", "pinyin": "Wǒ xiǎng gǎi dào bié de shíjiān.", "en": "I'd like to move it to another time", "next": "new-time" }
+      ]
+    },
+    "changed-end": {
+      "speaker": "Receptionist",
+      "zh": "好的，已经帮您改好了，我会发短信确认。", "pinyin": "Hǎo de, yǐjīng bāng nín gǎi hǎo le, wǒ huì fā duǎnxìn quèrèn.", "en": "Done — I've changed it and will text you a confirmation.",
+      "outcome": "Your appointment is moved.",
+      "choices": []
+    },
+    "cancelled-end": {
+      "speaker": "Receptionist",
+      "zh": "好的，已经取消了。需要的话随时再约。", "pinyin": "Hǎo de, yǐjīng qǔxiāo le. Xūyào de huà suíshí zài yuē.", "en": "Okay, it's cancelled. Book again whenever you need.",
+      "outcome": "Your appointment is cancelled.",
+      "choices": []
+    },
+    "checked-end": {
+      "speaker": "Receptionist",
+      "zh": "不客气，明天见！", "pinyin": "Bú kèqi, míngtiān jiàn!", "en": "You're welcome, see you tomorrow!",
+      "outcome": "Your appointment time is confirmed.",
+      "choices": []
+    },
+    "address-end": {
+      "speaker": "Receptionist",
+      "zh": "在中山路八十八号三楼，我发到您手机上。", "pinyin": "Zài Zhōngshān Lù bāshíbā hào sān lóu, wǒ fā dào nín shǒujī shang.", "en": "88 Zhongshan Road, third floor. I'll send it to your phone.",
+      "outcome": "You have the time and the address.",
+      "choices": []
+    }
+  }
+}
