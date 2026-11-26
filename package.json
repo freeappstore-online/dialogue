@@ -1,0 +1,21 @@
+{
+  "name": "dialogue",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  },
+  "scripts": {
+    "dev": "pnpm --filter @dialogue/web dev",
+    "build": "pnpm --filter @dialogue/web build",
+    "preview": "pnpm --filter @dialogue/web preview",
+    "typecheck": "pnpm --filter @dialogue/web exec tsc -b",
+    "test": "pnpm --filter @dialogue/web test"
+  }
+}
