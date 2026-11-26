@@ -263,14 +263,11 @@ img, video, canvas { max-width: 100%; }
 .script-replies li { border-left:3px solid var(--line-strong); padding-left:.75rem; }
 .outcome { margin:.6rem 0 0; color:var(--success); font-weight:700; }
 
+/* The SDK Modal becomes a bottom sheet on phones (!important: beats the Modal's Tailwind utilities). */
+@media (max-width: 600px) {
+  div:has(> [role="dialog"] .sheet) { align-items:flex-end !important; padding:0 !important; }
+  [role="dialog"]:has(.sheet) { max-width:none !important; border-radius:22px 22px 0 0 !important; border-bottom:0 !important; max-height:88dvh !important; padding-bottom:env(safe-area-inset-bottom); }
+}
 main:focus { outline:none; } /* programmatic focus after navigation */
 button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible, .script-node:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
 }
-
-/* Unlayered so it outranks the Tailwind utilities on the SDK Modal. */
-/* The SDK Modal becomes a bottom sheet on phones. */
-@media (max-width: 600px) {
-  div:has(> [role="dialog"] .sheet) { align-items:flex-end; padding:0; }
-  [role="dialog"]:has(.sheet) { max-width:none !important; border-radius:22px 22px 0 0; border-bottom:0; max-height:88dvh; padding-bottom:env(safe-area-inset-bottom); }
-}
-
